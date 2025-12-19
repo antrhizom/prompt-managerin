@@ -409,7 +409,7 @@ export default function Home() {
 
         <header className="text-center mb-12">
           <h1 className="text-5xl font-bold text-gray-800 dark:text-white mb-4">
-            📝 Prompt Manager für Bildung
+            📝 Prompt Managerin für Bildung
           </h1>
           <p className="text-xl text-gray-600 dark:text-gray-300">
             Sammle, bewerte und teile erfolgreiche KI-Prompts – für Lernende & Lehrende
