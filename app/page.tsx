@@ -1,3 +1,8 @@
+// ============================================
+// KOMPLETTE page.tsx DATEI
+// Kopiere ALLES von hier bis zum Ende
+// ============================================
+
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -285,7 +290,37 @@ export default function Home() {
         deletionRequests: updatedRequests
       });
 
-      console.log(`Löschanfrage gesendet an ${ADMIN_EMAIL} für Prompt ${promptId} von User ${currentUserName}`);
+      // ============================================
+      // WEBHOOK FÜR EMAIL-BENACHRICHTIGUNG
+      // ============================================
+      // WICHTIG: Ersetze die URL mit deiner Make.com Webhook URL!
+      // Anleitung: Siehe WEBHOOK_EINFACH.md
+      
+      const webhookUrl = 'https://hook.eu1.make.com/DEINE-WEBHOOK-ID-HIER';
+      
+      try {
+        await fetch(webhookUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            promptId: promptId,
+            promptText: prompt.text.substring(0, 200),
+            category: prompt.category,
+            tags: prompt.tags.join(', '),
+            userName: currentUserName,
+            creatorName: prompt.userName,
+            requestCount: updatedRequests.length,
+            usageCount: prompt.usageCount
+          })
+        });
+        console.log('✅ Webhook aufgerufen - Email sollte verschickt werden');
+      } catch (webhookErr) {
+        console.error('⚠️ Webhook Fehler:', webhookErr);
+      }
+      
+      // ============================================
+
+      console.log(`Löschanfrage gesendet für Prompt ${promptId} von User ${currentUserName}`);
       
       alert('Löschanfrage wurde gestellt. Der Admin wurde benachrichtigt.');
     } catch (err) {
@@ -764,7 +799,7 @@ export default function Home() {
 
           {filteredAndSortedPrompts.length === 0 && (
             <div className="text-center py-12 text-gray-500 dark:text-gray-400">
-              {searchTerm || categoryFilter ? (
+              {searchTerm || categoryFilter || tagFilter ? (
                 <>
                   <p className="text-xl mb-2">🔍 Keine Prompts gefunden</p>
                   <p>Versuche einen anderen Suchbegriff oder Filter</p>
