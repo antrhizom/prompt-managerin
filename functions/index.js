@@ -18,7 +18,7 @@ const EMAIL_CONFIG = {
   }
 };
 
-const ADMIN_EMAIL = 'christof.glaus@dlh.zh.ch'; // <-- HIER ADMIN-EMAIL
+const ADMIN_EMAIL = 'antrhizom@gmail.com'; // <-- HIER ADMIN-EMAIL
 
 // Email Transporter erstellen
 const transporter = nodemailer.createTransport(EMAIL_CONFIG);
