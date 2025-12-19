@@ -13,12 +13,12 @@ admin.initializeApp();
 const EMAIL_CONFIG = {
   service: 'gmail',
   auth: {
-    user: 'deine-email@gmail.com',  // <-- HIER DEINE GMAIL-ADRESSE
-    pass: 'xxxx xxxx xxxx xxxx'      // <-- HIER DEIN APP-PASSWORT (16 Zeichen)
+    user: 'antrhizom@gmail.com',  // <-- HIER DEINE GMAIL-ADRESSE
+    pass: 'ttxe dowj rfzg forj'      // <-- HIER DEIN APP-PASSWORT (16 Zeichen)
   }
 };
 
-const ADMIN_EMAIL = 'admin@deine-schule.de'; // <-- HIER ADMIN-EMAIL
+const ADMIN_EMAIL = 'christof.glaus@dlh.zh.ch'; // <-- HIER ADMIN-EMAIL
 
 // Email Transporter erstellen
 const transporter = nodemailer.createTransport(EMAIL_CONFIG);
