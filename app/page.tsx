@@ -296,7 +296,7 @@ export default function Home() {
       // WICHTIG: Ersetze die URL mit deiner Make.com Webhook URL!
       // Anleitung: Siehe WEBHOOK_EINFACH.md
       
-      const webhookUrl = 'https://hook.eu1.make.com/1qc0oua02l1ry7jyitimxeqfdtja54xa';
+      const webhookUrl = 'https://hook.eu1.make.com/ed4i5281q2cccrryx29kut1ige6ln72u';
       
       try {
         await fetch(webhookUrl, {
