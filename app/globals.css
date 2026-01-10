@@ -36,11 +36,20 @@ button {
   outline: none;
 }
 
-input, textarea {
+input, textarea, select {
   font-family: inherit;
 }
 
 a {
   text-decoration: none;
   color: inherit;
+}
+
+details summary {
+  cursor: pointer;
+  user-select: none;
+}
+
+details summary::-webkit-details-marker {
+  display: none;
 }

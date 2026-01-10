@@ -1,84 +1,96 @@
-# Prompting Manager 📝
+# Prompting Manager v2.0 📝
 
 Eine interaktive Web-Anwendung zum Verwalten, Bewerten und Teilen von KI-Prompts für Bildungszwecke.
 
-## ✨ Features
+## 🎯 Neue Features in v2.0
 
-### 🎯 Kern-Features
+### 1. Individuelles Login-System
+- **Persönlicher Code**: Jeder Nutzer erhält einen einzigartigen 8-stelligen Code (z.B. `USER-A3K9X2B7`)
+- **Automatischer Login**: Beim nächsten Besuch automatisch eingeloggt
+- **Keine Team-Freigabe**: Jeder Code ist privat und nicht zum Teilen gedacht
+- **Multi-Device**: Automatischer Login auf allen eigenen Geräten
+
+### 2. Accordion-System für Modellauswahl
+- **11 Plattformen** mit insgesamt über 60 Modellen (Stand Januar 2026):
+  - ChatGPT / OpenAI (GPT-5.2, GPT-4.1, o3, etc.)
+  - Claude / Anthropic (Claude Opus 4.5, Sonnet 4.5, etc.)
+  - Gemini / Google (Gemini 3 Pro, Gemini 2.5 Flash, etc.)
+  - fobizz (15 verschiedene Modelle)
+  - Copilot / Microsoft
+  - Perplexity
+  - DeepL Write
+  - Meta Llama
+  - Mistral AI
+  - Qwen / Alibaba
+  - DeepSeek
+- **Pro Plattform mehrere Modelle** auswählbar
+- **Übersichtliche Darstellung** in aufklappbaren Accordions
+
+### 3. Admin-Dashboard
+- **Übersicht-Statistiken**:
+  - Anzahl registrierter Nutzer
+  - Anzahl Prompts gesamt
+  - Gesamte Bewertungen (Likes)
+  - Gesamte Nutzungen (Kopiert)
+- **Detaillierte Analysen**:
+  - Prompts pro Output-Format
+  - Prompts pro Plattform
+  - Top 10 Modelle
+  - Prompts pro Anwendungsfall
+  - Top 5 aktivste Nutzer
+  - Top 5 beliebteste Prompts
+  - Top 5 meist genutzte Prompts
+
+## ✨ Bestehende Features
+
 - **Cloud-Speicherung** mit Firebase Firestore
-- **Code-basierte Authentifizierung** - Teams teilen einen Zugangscode
-- **Echtzeit-Synchronisation** - Änderungen erscheinen sofort auf allen Geräten
-- **Multi-Plattform** - 15+ KI-Tools unterstützt (ChatGPT, Claude, Gemini, fobizz, etc.)
-- **26+ Lern-Anwendungsfälle** - Kategorisiert nach Lernzielen
-- **Output-Formate** - 12 verschiedene Formate (Text, HTML, PDF, Bild, etc.)
-
-### 👥 Benutzer-Verwaltung
-- **Eigene Prompts löschen** - Volle Kontrolle über eigene Inhalte
-- **Löschanfragen** - Andere Prompts können per E-Mail zur Löschung angefragt werden
-- **Bewertungssystem** - 5 Emoji-Bewertungen
-- **Nutzungs-Tracking** - Sehe welche Prompts am häufigsten verwendet werden
-
-### 🔍 Such- & Filter-Funktionen
-- Volltextsuche
-- Filter nach Plattform
-- Filter nach Output-Format
-- Filter nach Anwendungsfall
-- Sortierung (Neueste, Meist genutzt, Best bewertet)
+- **Echtzeit-Synchronisation**
+- **26+ Lern-Anwendungsfälle** (6 Kategorien)
+- **12 Output-Formate** (Text, HTML, PDF, Bild, Video, etc.)
+- **Bewertungssystem** (5 Emoji-Bewertungen)
+- **Nutzungs-Tracking**
+- **Such- & Filter-Funktionen**
+- **Löschanfragen per E-Mail** für fremde Prompts
+- **Tags** für bessere Organisation
 
 ## 🚀 Installation & Setup
 
-### 1. Firebase einrichten (10 Minuten)
+### 1. Firebase einrichten (10 Min)
 
-#### Schritt 1: Firebase Projekt erstellen
+#### Firebase Projekt erstellen
 1. Gehe zu [console.firebase.google.com](https://console.firebase.google.com)
-2. Klicke auf **"Projekt hinzufügen"**
-3. Projektname eingeben (z.B. `prompting-manager`)
-4. Google Analytics optional deaktivieren
-5. **"Projekt erstellen"** klicken
+2. Klicke auf "Projekt hinzufügen"
+3. Projektname eingeben
+4. "Projekt erstellen" klicken
 
-#### Schritt 2: Web-App registrieren
-1. Im Firebase Projekt: Klicke auf **Web-Icon** (`</>`)
-2. App-Name: `Prompting Manager`
-3. **Firebase Hosting NICHT aktivieren**
-4. **"App registrieren"** klicken
-5. **Config-Werte kopieren** (brauchst du gleich!)
+#### Firestore Database aktivieren
+1. Linkes Menü: "Build" → "Firestore Database"
+2. "Datenbank erstellen" klicken
+3. "Im Testmodus starten" wählen
+4. Standort: `europe-west` (für Europa)
+5. "Aktivieren" klicken
 
-#### Schritt 3: Firestore Database aktivieren
-1. Linkes Menü: **"Build"** → **"Firestore Database"**
-2. **"Datenbank erstellen"** klicken
-3. **"Im Testmodus starten"** wählen
-4. Standort wählen: `europe-west` (für Europa)
-5. **"Aktivieren"** klicken
-
-#### Schritt 4: Sicherheitsregeln anpassen
-1. In Firestore: Tab **"Regeln"**
-2. Ersetze die Regeln mit:
-
+#### Sicherheitsregeln setzen
 ```javascript
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     match /prompts/{promptId} {
-      allow read: if true;
-      allow create: if true;
-      allow update: if true;
-      allow delete: if true;
+      allow read, write: if true;
     }
   }
 }
 ```
 
-3. **"Veröffentlichen"** klicken
+#### Web-App registrieren
+1. Firebase Projekt → Web-Icon (`</>`)
+2. App-Name eingeben
+3. "App registrieren"
+4. **Config-Werte kopieren**
 
-⚠️ **WICHTIG**: Diese Regeln erlauben allen Zugriff. Für Production solltest du Authentifizierung hinzufügen!
-
-### 2. Projekt klonen & konfigurieren (5 Minuten)
+### 2. Projekt konfigurieren (5 Min)
 
 ```bash
-# Repository klonen (oder ZIP herunterladen)
-git clone dein-repository-url
-cd prompt-manager
-
 # Dependencies installieren
 npm install
 
@@ -97,7 +109,7 @@ NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=123456789
 NEXT_PUBLIC_FIREBASE_APP_ID=1:123456789:web:abcdef
 ```
 
-### 3. Lokal testen (2 Minuten)
+### 3. Lokal testen (2 Min)
 
 ```bash
 npm run dev
@@ -105,208 +117,179 @@ npm run dev
 
 Öffne [http://localhost:3000](http://localhost:3000)
 
-**Test-Schritte:**
-1. Name eingeben (z.B. "Max Mustermann")
-2. Zugangscode eingeben (z.B. "schule2024")
-3. "Anmelden" klicken
-4. Prompt erstellen und speichern
-5. Prüfen ob Prompt angezeigt wird
-
-### 4. Auf Vercel deployen (5 Minuten)
+### 4. Auf Vercel deployen (5 Min)
 
 #### Option A: GitHub Integration (Empfohlen)
 
-1. **Code zu GitHub pushen:**
 ```bash
 git add .
 git commit -m "Initial commit"
 git push origin main
 ```
 
-2. **Vercel importieren:**
-   - Gehe zu [vercel.com/new](https://vercel.com/new)
-   - GitHub Repository auswählen
-   - **"Import"** klicken
-
-3. **Environment Variables setzen:**
-   - In Vercel: **"Environment Variables"** Tab
-   - Füge alle Werte aus `.env.local` hinzu
-   - Für jede Variable: Name + Wert eingeben
-   - **WICHTIG**: Alle müssen mit `NEXT_PUBLIC_` beginnen!
-
-4. **Deploy:**
-   - **"Deploy"** klicken
-   - Warte ~2 Minuten
-   - Fertig! 🎉
+1. Gehe zu [vercel.com/new](https://vercel.com/new)
+2. GitHub Repository auswählen
+3. "Import" klicken
+4. **Environment Variables** hinzufügen (alle aus `.env.local`)
+5. "Deploy" klicken
 
 #### Option B: Vercel CLI
 
 ```bash
-# Vercel CLI installieren (einmalig)
 npm i -g vercel
-
-# Deployen
 vercel --prod
-
-# Environment Variables setzen (in der Vercel UI)
 ```
 
 ## 📖 Verwendung
 
-### Erster Besuch - Automatisches Setup
-1. **Automatischer Code**: Beim ersten Besuch wird dir automatisch ein 6-stelliger Team-Code zugewiesen (z.B. `A3K9X2`)
-2. **Name eingeben**: Gib deinen Namen ein (z.B. "Anna Schmidt")
-3. **Fertig!**: Du bist eingeloggt und kannst loslegen
+### Erster Besuch
+1. **Automatischer Code**: System generiert deinen persönlichen Code
+2. **Name eingeben**: Gib deinen Namen ein
+3. **Los geht's**: Du bist eingeloggt!
 
 ### Wiederkehrender Besuch
-- **Automatischer Login**: Beim nächsten Besuch wirst du automatisch mit deinem gespeicherten Namen und Code eingeloggt
-- **Kein Passwort nötig**: Deine Daten bleiben im Browser gespeichert
+- **Automatischer Login**: Sofort eingeloggt mit gespeichertem Code & Namen
 
-### Team-Code teilen
-1. **Code anzeigen**: Dein Team-Code wird im Header angezeigt
-2. **Code teilen**: Teile deinen Code mit Kollegen (z.B. per E-Mail)
-3. **Code eingeben**: Andere klicken auf "Code ändern" und geben deinen Code ein
-4. **Gleiche Datenbank**: Alle mit dem gleichen Code sehen die gleichen Prompts!
+### Prompt erstellen
+1. **Titel** (Pflicht)
+2. **Beschreibung** (Optional)
+3. **Prompt-Text** (Pflicht)
+4. **Plattformen & Modelle** (Pflicht) - Per Accordion auswählbar
+5. **Output-Formate** (Pflicht)
+6. **Anwendungsfälle** (Pflicht)
+7. **Tags** (Optional)
+8. **Kommentar** (Optional)
 
-### Code wechseln
-- **"🔄 Code ändern"** im Header klicken
-- Neuen Team-Code eingeben
-- Jetzt nutzt du eine andere Team-Datenbank
-
-### Anmelden
-1. **Titel** (Pflicht): Kurzer, beschreibender Titel
-2. **Beschreibung** (Optional): Zusätzliche Erklärung
-3. **Prompt-Text** (Pflicht): Der eigentliche Prompt
-4. **Plattformen** (Pflicht): Mindestens eine wählen
-5. **Output-Formate** (Pflicht): Mindestens ein Format
-6. **Anwendungsfälle** (Pflicht): Mindestens einen Zweck
-7. **Tags** (Optional): Komma-getrennt
-8. **Kommentar** (Optional): Zusätzliche Tipps
+### Admin-Dashboard aufrufen
+- Klicke auf "📊 Dashboard" im Header
+- Oder navigiere zu `/admin`
 
 ### Prompts nutzen
-- **Suchen**: Volltextsuche über alle Felder
+- **Suchen**: Volltextsuche
 - **Filtern**: Nach Plattform, Format, Anwendungsfall
-- **Bewerten**: Klicke auf Emoji (👍 ❤️ 🔥 ⭐ 💡)
-- **Kopieren**: "📋 Kopieren" klickt = Prompt in Zwischenablage + Nutzung zählt
+- **Bewerten**: Emoji-Bewertungen
+- **Kopieren**: "📋 Kopieren" → Prompt in Zwischenablage + Nutzung zählt
 
-### Löschen
-- **Eigene Prompts**: Direkt löschen
-- **Fremde Prompts**: "📧 Löschanfrage" sendet E-Mail
+## 🏗️ Technologie-Stack
 
-## 🔧 Anpassungen
+- **Framework**: Next.js 14 (App Router)
+- **Language**: TypeScript
+- **Database**: Firebase Firestore
+- **Deployment**: Vercel
+- **Styling**: Inline CSS
 
-### Anwendungsfälle ändern
-Datei: `app/page.tsx` - Zeile ~47
+## 📊 Datenstruktur
 
+### Prompt-Interface
 ```typescript
-const ANWENDUNGSFAELLE = {
-  'Deine Kategorie': [
-    'Anwendungsfall 1',
-    'Anwendungsfall 2',
-  ],
-  // ...
-};
+interface Prompt {
+  id: string;
+  titel: string;
+  beschreibung: string;
+  promptText: string;
+  plattformenUndModelle: { [plattform: string]: string[] };
+  outputFormate: string[];
+  anwendungsfaelle: string[];
+  tags: string[];
+  kommentar: string;
+  bewertungen: { [emoji: string]: number };
+  nutzungsanzahl: number;
+  erstelltVon: string;  // User-Code
+  erstelltAm: Timestamp;
+}
 ```
 
-### Plattformen hinzufügen
-Datei: `app/page.tsx` - Zeile ~27
-
-```typescript
-const PLATTFORMEN = [
-  'ChatGPT',
-  'Deine neue Plattform',
-  // ...
-];
+### Beispiel-Daten
+```javascript
+{
+  titel: "Mathe-Textaufgaben erstellen",
+  plattformenUndModelle: {
+    "ChatGPT / OpenAI": ["GPT-4o", "GPT-5.2"],
+    "Claude / Anthropic": ["Claude Sonnet 4.5"]
+  },
+  outputFormate: ["Text", "PDF"],
+  anwendungsfaelle: ["Übungsaufgaben erstellen"],
+  tags: ["Mathematik", "7. Klasse"],
+  erstelltVon: "USER-A3K9X2B7"
+}
 ```
-
-### Make.com Webhook ändern
-Datei: `app/page.tsx` - Zeile ~376
-
-```typescript
-const response = await fetch('DEINE-WEBHOOK-URL', {
-  // ...
-});
-```
-
-## 🐛 Troubleshooting
-
-### "Firebase is not configured"
-- Überprüfe `.env.local` existiert
-- Alle Variablen beginnen mit `NEXT_PUBLIC_`
-- Server neu starten: `npm run dev`
-
-### "Missing or insufficient permissions"
-- Firestore Rules auf `allow read, write: if true;` setzen
-- Im Firebase Console überprüfen
-
-### Prompts werden nicht angezeigt
-1. F12 drücken → Console öffnen
-2. Fehlermeldung suchen
-3. Firebase Config überprüfen
-
-### Build-Fehler
-```bash
-# Node modules neu installieren
-rm -rf node_modules package-lock.json
-npm install
-npm run build
-```
-
-## 📊 Firebase Kosten
-
-### Free Tier (Spark Plan)
-- ✅ 50.000 Reads/Tag
-- ✅ 20.000 Writes/Tag
-- ✅ 1 GB Storage
-
-**Für kleine Schulen (< 50 Nutzer)**: Völlig ausreichend!
-
-### Blaze Plan (Pay-as-you-go)
-- Nur zahlen wenn Free Tier überschritten
-- ~$0.06 pro 100.000 Reads
-- Für die meisten Schulen: < $1/Monat
 
 ## 🔐 Sicherheit
 
 ### Production Deployment
 
-Für echte Nutzung solltest du:
-
-1. **Firebase Authentication hinzufügen**
-2. **Firestore Rules verschärfen**:
+Für echte Nutzung Firebase Rules verschärfen:
 
 ```javascript
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     match /prompts/{promptId} {
-      allow read: if request.auth != null;
-      allow create: if request.auth != null;
-      allow update: if request.auth != null;
-      allow delete: if request.auth != null 
-                    && resource.data.erstelltVon == request.auth.uid;
+      allow read: if true;
+      allow create: if true;
+      allow update: if true;
+      allow delete: if resource.data.erstelltVon == request.auth.uid;
     }
   }
 }
 ```
 
-3. **API Keys schützen** (nur für autorisierte Domains)
+**Hinweis**: Die App nutzt derzeit keine Firebase Authentication. Für echte Nutzer-Authentifizierung sollte Firebase Auth integriert werden.
 
-## 📚 Technologie-Stack
+## 🐛 Troubleshooting
 
-- **Framework**: Next.js 14 (App Router)
-- **Language**: TypeScript
-- **Database**: Firebase Firestore
-- **Deployment**: Vercel
-- **Styling**: Inline CSS (kein Framework)
+### "Firebase is not configured"
+- `.env.local` existiert?
+- Alle Variablen beginnen mit `NEXT_PUBLIC_`?
+- Server neu starten: `npm run dev`
 
-## 🤝 Beitragen
+### "Missing or insufficient permissions"
+- Firestore Rules auf `allow read, write: if true;` setzen
+- Firebase Console überprüfen
 
-Bugs oder Feature-Wünsche? Erstelle ein GitHub Issue!
+### Build-Fehler
+```bash
+rm -rf node_modules package-lock.json
+npm install
+npm run build
+```
 
-## 📄 Lizenz
+### Admin-Dashboard zeigt keine Daten
+- Mindestens 1 Prompt muss erstellt sein
+- Firebase-Verbindung prüfen
 
-MIT License - Frei verwendbar für Bildungszwecke
+## 💰 Firebase Kosten
+
+### Free Tier (Spark Plan)
+- ✅ 50.000 Reads/Tag
+- ✅ 20.000 Writes/Tag
+- ✅ 1 GB Storage
+
+**Für Schulen (< 100 Nutzer)**: Völlig ausreichend!
+
+### Blaze Plan (Pay-as-you-go)
+- ~$0.06 pro 100.000 Reads
+- Für die meisten: < $1/Monat
+
+## 📚 Projektstruktur
+
+```
+prompt-manager/
+├── app/
+│   ├── admin/
+│   │   └── page.tsx          # Admin Dashboard
+│   ├── layout.tsx             # Root Layout
+│   ├── page.tsx               # Hauptseite
+│   └── globals.css            # Globale Styles
+├── lib/
+│   └── firebase.ts            # Firebase Config
+├── .env.local.template        # Env Template
+├── .gitignore
+├── next.config.js
+├── package.json
+├── README.md
+└── tsconfig.json
+```
 
 ## 🆘 Support
 
@@ -318,4 +301,4 @@ Bei Problemen:
 
 ---
 
-**Viel Erfolg mit deinem Prompting Manager!** 🚀
+**Version 2.0** - Mit individuellem Login, Accordion-Modellauswahl und Admin-Dashboard 🚀

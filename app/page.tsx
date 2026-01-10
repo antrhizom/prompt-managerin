@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import Link from 'next/link';
 import { 
   collection, 
   addDoc, 
@@ -24,7 +25,7 @@ interface Prompt {
   titel: string;
   beschreibung: string;
   promptText: string;
-  plattformen: string[];
+  plattformenUndModelle: { [plattform: string]: string[] };
   outputFormate: string[];
   anwendungsfaelle: string[];
   tags: string[];
@@ -36,86 +37,121 @@ interface Prompt {
 }
 
 // ============================================
-// KONSTANTEN
+// KONSTANTEN - Plattformen mit Modellen
 // ============================================
+
+const PLATTFORMEN_MIT_MODELLEN: { [key: string]: string[] } = {
+  'ChatGPT / OpenAI': [
+    'GPT-5.2',
+    'GPT-5.1',
+    'GPT-4.1',
+    'GPT-4o',
+    'GPT-4o mini',
+    'o3',
+    'o3-mini',
+    'o3-pro'
+  ],
+  'Claude / Anthropic': [
+    'Claude Opus 4.5',
+    'Claude Sonnet 4.5',
+    'Claude Opus 4',
+    'Claude Sonnet 4',
+    'Claude Haiku 4.5',
+    'Claude 4',
+    'Claude 4.5'
+  ],
+  'Gemini / Google': [
+    'Gemini 3 Pro',
+    'Gemini 3 Flash',
+    'Gemini 2.5 Pro',
+    'Gemini 2.5 Flash'
+  ],
+  'fobizz': [
+    'Mistral mini',
+    'Llama 3',
+    'Llama 3 mini',
+    'GPT-OSS',
+    'GPT-OSS small',
+    'DeepSeek R1',
+    'Qwen 3',
+    'GPT-5',
+    'GPT-5 mini',
+    'GPT-4o',
+    'GPT-4o mini',
+    'GPT o3-mini',
+    'Claude 4',
+    'Claude 4.5',
+    'Mistral'
+  ],
+  'Copilot / Microsoft': [
+    'GPT-5',
+    'GPT-4.1',
+    'Claude Sonnet 4',
+    'Phi-4'
+  ],
+  'Perplexity': [
+    'Sonar',
+    'Sonar-Pro',
+    'Sonar-Reasoning'
+  ],
+  'DeepL Write': [
+    'DeepL Write'
+  ],
+  'Meta Llama': [
+    'Llama 4 Scout',
+    'Llama 4 Maverick',
+    'Llama 3.3 70B',
+    'Llama 3.2 Vision',
+    'Llama 3.1 405B'
+  ],
+  'Mistral AI': [
+    'Mistral Large 3',
+    'Mistral Small 3.2',
+    'Ministral 3'
+  ],
+  'Qwen / Alibaba': [
+    'Qwen3-235B',
+    'Qwen3-Max',
+    'QwQ-32B',
+    'Qwen3-VL'
+  ],
+  'DeepSeek': [
+    'DeepSeek-V3.2',
+    'DeepSeek-R1'
+  ]
+};
 
 const EMOJIS = ['👍', '❤️', '🔥', '⭐', '💡'];
 
-const PLATTFORMEN = [
-  'ChatGPT',
-  'Claude',
-  'Gemini',
-  'fobizz',
-  'Copilot',
-  'Perplexity',
-  'DeepL Write',
-  'Grammarly',
-  'QuillBot',
-  'Notion AI',
-  'Jasper',
-  'Copy.ai',
-  'Writesonic',
-  'HuggingFace',
-  'Midjourney'
-];
-
 const OUTPUT_FORMATE = [
-  'Text',
-  'HTML',
-  'Markdown',
-  'PDF',
-  'Bild',
-  'Video',
-  'Audio',
-  'Präsentation',
-  'Tabelle',
-  'Code',
-  'JSON',
-  'Quiz'
+  'Text', 'HTML', 'Markdown', 'PDF', 'Bild', 'Video', 
+  'Audio', 'Präsentation', 'Tabelle', 'Code', 'JSON', 'Quiz'
 ];
 
 const ANWENDUNGSFAELLE = {
   'Verstehen & Erfassen': [
-    'Texte vereinfachen',
-    'Zusammenfassen',
-    'Konzepte erklären',
-    'Beispiele generieren',
-    'Analogien bilden'
+    'Texte vereinfachen', 'Zusammenfassen', 'Konzepte erklären', 
+    'Beispiele generieren', 'Analogien bilden'
   ],
   'Üben & Anwenden': [
-    'Übungsaufgaben erstellen',
-    'Prüfungsvorbereitung',
-    'Lernkarten generieren',
-    'Quiz erstellen',
-    'Selbsttest'
+    'Übungsaufgaben erstellen', 'Prüfungsvorbereitung', 'Lernkarten generieren', 
+    'Quiz erstellen', 'Selbsttest'
   ],
   'Erstellen & Gestalten': [
-    'Präsentationen',
-    'Arbeitsblätter',
-    'Projekte planen',
-    'Kreatives Schreiben',
-    'Visualisierungen'
+    'Präsentationen', 'Arbeitsblätter', 'Projekte planen', 
+    'Kreatives Schreiben', 'Visualisierungen'
   ],
   'Feedback & Reflexion': [
-    'Texte korrigieren',
-    'Feedback geben',
-    'Selbstreflexion',
-    'Peer-Review',
-    'Verbesserungsvorschläge'
+    'Texte korrigieren', 'Feedback geben', 'Selbstreflexion', 
+    'Peer-Review', 'Verbesserungsvorschläge'
   ],
   'Organisation & Planung': [
-    'Lernpläne',
-    'Zeitmanagement',
-    'Zielsetzung',
-    'Projektmanagement',
-    'Notizen strukturieren'
+    'Lernpläne', 'Zeitmanagement', 'Zielsetzung', 
+    'Projektmanagement', 'Notizen strukturieren'
   ],
   'Recherche & Analyse': [
-    'Informationen suchen',
-    'Quellen bewerten',
-    'Daten analysieren',
-    'Vergleichen',
-    'Argumentieren'
+    'Informationen suchen', 'Quellen bewerten', 'Daten analysieren', 
+    'Vergleichen', 'Argumentieren'
   ]
 };
 
@@ -124,28 +160,27 @@ const ANWENDUNGSFAELLE = {
 // ============================================
 
 export default function Home() {
-  // State für Authentifizierung
+  // Auth State
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [username, setUsername] = useState('');
-  const [accessCode, setAccessCode] = useState('');
-  const [userId, setUserId] = useState('');
+  const [userCode, setUserCode] = useState('');
   const [showNameInput, setShowNameInput] = useState(false);
 
-  // State für Prompts
+  // Prompts State
   const [prompts, setPrompts] = useState<Prompt[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // State für neuen Prompt
+  // Neuer Prompt State
   const [neuerTitel, setNeuerTitel] = useState('');
   const [neueBeschreibung, setNeueBeschreibung] = useState('');
   const [neuerPromptText, setNeuerPromptText] = useState('');
-  const [neuePlattformen, setNeuePlattformen] = useState<string[]>([]);
+  const [neuePlattformenUndModelle, setNeuePlattformenUndModelle] = useState<{ [key: string]: string[] }>({});
   const [neueOutputFormate, setNeueOutputFormate] = useState<string[]>([]);
   const [neueAnwendungsfaelle, setNeueAnwendungsfaelle] = useState<string[]>([]);
   const [neueTags, setNeueTags] = useState('');
   const [neuerKommentar, setNeuerKommentar] = useState('');
 
-  // State für Filter & Suche
+  // Filter & Search State
   const [suchbegriff, setSuchbegriff] = useState('');
   const [filterPlattform, setFilterPlattform] = useState('');
   const [filterOutputFormat, setFilterOutputFormat] = useState('');
@@ -153,46 +188,37 @@ export default function Home() {
   const [sortierung, setSortierung] = useState<'nutzung' | 'bewertung' | 'aktuell'>('aktuell');
 
   // ============================================
-  // AUTHENTIFIZIERUNG
+  // CODE GENERIEREN (INDIVIDUELL - KEIN SHARING)
   // ============================================
-
-  // Code generieren (6-stelliger alphanumerischer Code)
-  const generiereCode = () => {
+  
+  const generiereIndividuellenCode = () => {
     const zeichen = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-    let code = '';
-    for (let i = 0; i < 6; i++) {
+    let code = 'USER-';
+    for (let i = 0; i < 8; i++) {
       code += zeichen.charAt(Math.floor(Math.random() * zeichen.length));
     }
     return code;
   };
 
+  // ============================================
+  // AUTHENTIFIZIERUNG
+  // ============================================
+
   useEffect(() => {
     const gespeicherterUsername = localStorage.getItem('username');
-    const gespeicherterCode = localStorage.getItem('accessCode');
-    const gespeicherterUserId = localStorage.getItem('userId');
+    const gespeicherterCode = localStorage.getItem('userCode');
     
-    if (gespeicherterUsername && gespeicherterCode && gespeicherterUserId) {
-      // Automatisch einloggen
+    if (gespeicherterUsername && gespeicherterCode) {
       setUsername(gespeicherterUsername);
-      setAccessCode(gespeicherterCode);
-      setUserId(gespeicherterUserId);
+      setUserCode(gespeicherterCode);
       setIsAuthenticated(true);
-    } else if (gespeicherterCode && gespeicherterUserId) {
-      // Code vorhanden, aber kein Name - Name eingeben
-      setAccessCode(gespeicherterCode);
-      setUserId(gespeicherterUserId);
+    } else if (gespeicherterCode) {
+      setUserCode(gespeicherterCode);
       setShowNameInput(true);
     } else {
-      // Neuer Nutzer - Code generieren
-      const neuerCode = generiereCode();
-      const neueUserId = `user_${neuerCode}`;
-      
-      setAccessCode(neuerCode);
-      setUserId(neueUserId);
-      
-      localStorage.setItem('accessCode', neuerCode);
-      localStorage.setItem('userId', neueUserId);
-      
+      const neuerCode = generiereIndividuellenCode();
+      setUserCode(neuerCode);
+      localStorage.setItem('userCode', neuerCode);
       setShowNameInput(true);
     }
   }, []);
@@ -207,44 +233,11 @@ export default function Home() {
     }
   };
 
-  const handleCodeAendern = () => {
-    if (confirm('Möchtest du einen anderen Team-Code verwenden? Deine aktuellen Daten bleiben erhalten.')) {
-      const neuerCode = window.prompt('Gib den Team-Code ein:');
-      if (neuerCode && neuerCode.trim()) {
-        const neueUserId = `user_${neuerCode.trim().toUpperCase()}`;
-        
-        setAccessCode(neuerCode.trim().toUpperCase());
-        setUserId(neueUserId);
-        
-        localStorage.setItem('accessCode', neuerCode.trim().toUpperCase());
-        localStorage.setItem('userId', neueUserId);
-        
-        alert('✅ Code geändert! Du nutzt jetzt die Datenbank des Teams: ' + neuerCode.trim().toUpperCase());
-      }
-    }
-  };
-
   const handleLogout = () => {
     if (confirm('Möchtest du dich wirklich abmelden? Deine Daten bleiben gespeichert.')) {
       localStorage.removeItem('username');
-      localStorage.removeItem('userId');
-      localStorage.removeItem('accessCode');
       setUsername('');
-      setUserId('');
-      setAccessCode('');
       setIsAuthenticated(false);
-      setShowNameInput(false);
-      
-      // Neuen Code generieren
-      const neuerCode = generiereCode();
-      const neueUserId = `user_${neuerCode}`;
-      
-      setAccessCode(neuerCode);
-      setUserId(neueUserId);
-      
-      localStorage.setItem('accessCode', neuerCode);
-      localStorage.setItem('userId', neueUserId);
-      
       setShowNameInput(true);
     }
   };
@@ -285,6 +278,38 @@ export default function Home() {
   }, [isAuthenticated]);
 
   // ============================================
+  // MODELL-TOGGLE HELPER
+  // ============================================
+
+  const toggleModell = (plattform: string, modell: string) => {
+    setNeuePlattformenUndModelle(prev => {
+      const aktuelleModelle = prev[plattform] || [];
+      const neueModelle = aktuelleModelle.includes(modell)
+        ? aktuelleModelle.filter(m => m !== modell)
+        : [...aktuelleModelle, modell];
+      
+      if (neueModelle.length === 0) {
+        const { [plattform]: _, ...rest } = prev;
+        return rest;
+      }
+      
+      return { ...prev, [plattform]: neueModelle };
+    });
+  };
+
+  const toggleOutputFormat = (format: string) => {
+    setNeueOutputFormate(prev => 
+      prev.includes(format) ? prev.filter(f => f !== format) : [...prev, format]
+    );
+  };
+
+  const toggleAnwendungsfall = (fall: string) => {
+    setNeueAnwendungsfaelle(prev => 
+      prev.includes(fall) ? prev.filter(f => f !== fall) : [...prev, fall]
+    );
+  };
+
+  // ============================================
   // PROMPT HINZUFÜGEN
   // ============================================
 
@@ -294,8 +319,8 @@ export default function Home() {
       return;
     }
 
-    if (neuePlattformen.length === 0) {
-      alert('Bitte mindestens eine Plattform auswählen!');
+    if (Object.keys(neuePlattformenUndModelle).length === 0) {
+      alert('Bitte mindestens eine Plattform mit Modell auswählen!');
       return;
     }
 
@@ -314,22 +339,21 @@ export default function Home() {
         titel: neuerTitel.trim(),
         beschreibung: neueBeschreibung.trim(),
         promptText: neuerPromptText.trim(),
-        plattformen: neuePlattformen,
+        plattformenUndModelle: neuePlattformenUndModelle,
         outputFormate: neueOutputFormate,
         anwendungsfaelle: neueAnwendungsfaelle,
         tags: neueTags.split(',').map(t => t.trim()).filter(t => t),
         kommentar: neuerKommentar.trim(),
         bewertungen: { '👍': 0, '❤️': 0, '🔥': 0, '⭐': 0, '💡': 0 },
         nutzungsanzahl: 0,
-        erstelltVon: userId,
+        erstelltVon: userCode,
         erstelltAm: serverTimestamp()
       });
 
-      // Formular zurücksetzen
       setNeuerTitel('');
       setNeueBeschreibung('');
       setNeuerPromptText('');
-      setNeuePlattformen([]);
+      setNeuePlattformenUndModelle({});
       setNeueOutputFormate([]);
       setNeueAnwendungsfaelle([]);
       setNeueTags('');
@@ -343,7 +367,7 @@ export default function Home() {
   };
 
   // ============================================
-  // BEWERTUNG
+  // BEWERTUNG & NUTZUNG
   // ============================================
 
   const handleBewertung = async (promptId: string, emoji: string) => {
@@ -363,10 +387,6 @@ export default function Home() {
       console.error('Fehler beim Bewerten:', error);
     }
   };
-
-  // ============================================
-  // NUTZUNG ZÄHLEN
-  // ============================================
 
   const handleNutzung = async (promptId: string) => {
     try {
@@ -389,8 +409,7 @@ export default function Home() {
     const prompt = prompts.find(p => p.id === promptId);
     if (!prompt) return;
 
-    // Prüfen ob eigener Prompt
-    if (prompt.erstelltVon === userId) {
+    if (prompt.erstelltVon === userCode) {
       if (confirm('Möchtest du diesen Prompt wirklich löschen?')) {
         try {
           await deleteDoc(doc(db, 'prompts', promptId));
@@ -401,17 +420,14 @@ export default function Home() {
         }
       }
     } else {
-      // Löschanfrage senden
       if (confirm('Du kannst nur eigene Prompts löschen. Möchtest du eine Löschanfrage senden?')) {
         const grund = window.prompt('Warum möchtest du diesen Prompt löschen?');
-        if (!grund) return; // Abbruch wenn kein Grund angegeben
+        if (!grund) return;
         
         try {
           const response = await fetch('https://hook.eu1.make.com/1qc0oua02l1ry7jyitimxeqfdtja54xa', {
             method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
               promptId: promptId,
               titel: prompt.titel,
@@ -444,9 +460,14 @@ export default function Home() {
       prompt.promptText.toLowerCase().includes(suchbegriff.toLowerCase()) ||
       prompt.tags.some(tag => tag.toLowerCase().includes(suchbegriff.toLowerCase()));
 
-    const plattformMatch = filterPlattform === '' || prompt.plattformen.includes(filterPlattform);
-    const outputMatch = filterOutputFormat === '' || prompt.outputFormate.includes(filterOutputFormat);
-    const anwendungMatch = filterAnwendungsfall === '' || prompt.anwendungsfaelle.includes(filterAnwendungsfall);
+    const plattformMatch = filterPlattform === '' || 
+      Object.keys(prompt.plattformenUndModelle).includes(filterPlattform);
+    
+    const outputMatch = filterOutputFormat === '' || 
+      prompt.outputFormate.includes(filterOutputFormat);
+    
+    const anwendungMatch = filterAnwendungsfall === '' || 
+      prompt.anwendungsfaelle.includes(filterAnwendungsfall);
 
     return suchMatch && plattformMatch && outputMatch && anwendungMatch;
   });
@@ -462,34 +483,6 @@ export default function Home() {
       return b.erstelltAm.seconds - a.erstelltAm.seconds;
     }
   });
-
-  // ============================================
-  // CHECKBOX HANDLER
-  // ============================================
-
-  const togglePlattform = (plattform: string) => {
-    setNeuePlattformen(prev => 
-      prev.includes(plattform) 
-        ? prev.filter(p => p !== plattform)
-        : [...prev, plattform]
-    );
-  };
-
-  const toggleOutputFormat = (format: string) => {
-    setNeueOutputFormate(prev => 
-      prev.includes(format) 
-        ? prev.filter(f => f !== format)
-        : [...prev, format]
-    );
-  };
-
-  const toggleAnwendungsfall = (fall: string) => {
-    setNeueAnwendungsfaelle(prev => 
-      prev.includes(fall) 
-        ? prev.filter(f => f !== fall)
-        : [...prev, fall]
-    );
-  };
 
   // ============================================
   // RENDER: NAME EINGEBEN
@@ -513,23 +506,13 @@ export default function Home() {
           width: '100%',
           maxWidth: '500px'
         }}>
-          <h1 style={{
-            fontSize: '2rem',
-            marginBottom: '0.5rem',
-            color: 'var(--dark-blue)',
-            textAlign: 'center'
-          }}>
+          <h1 style={{ fontSize: '2rem', marginBottom: '0.5rem', color: 'var(--dark-blue)', textAlign: 'center' }}>
             Willkommen! 👋
           </h1>
-          <p style={{
-            textAlign: 'center',
-            color: 'var(--gray-medium)',
-            marginBottom: '2rem'
-          }}>
-            Dein Team-Code wurde erstellt
+          <p style={{ textAlign: 'center', color: 'var(--gray-medium)', marginBottom: '2rem' }}>
+            Dein persönlicher Zugang wurde erstellt
           </p>
 
-          {/* Code-Anzeige */}
           <div style={{
             background: 'var(--light-blue)',
             padding: '1.5rem',
@@ -538,48 +521,33 @@ export default function Home() {
             textAlign: 'center',
             border: '2px dashed var(--primary-blue)'
           }}>
-            <div style={{
-              fontSize: '0.9rem',
-              color: 'var(--gray-medium)',
-              marginBottom: '0.5rem',
-              fontWeight: '500'
-            }}>
-              Dein Team-Code:
+            <div style={{ fontSize: '0.9rem', color: 'var(--gray-medium)', marginBottom: '0.5rem', fontWeight: '500' }}>
+              Dein persönlicher Code:
             </div>
             <div style={{
-              fontSize: '2.5rem',
+              fontSize: '1.8rem',
               fontWeight: '700',
               color: 'var(--primary-blue)',
-              letterSpacing: '0.3rem',
+              letterSpacing: '0.2rem',
               fontFamily: 'monospace'
             }}>
-              {accessCode}
+              {userCode}
             </div>
-            <div style={{
-              fontSize: '0.85rem',
-              color: 'var(--gray-medium)',
-              marginTop: '0.75rem'
-            }}>
-              💡 Teile diesen Code mit deinem Team,<br />
-              um die gleichen Prompts zu sehen
+            <div style={{ fontSize: '0.85rem', color: 'var(--gray-medium)', marginTop: '0.75rem' }}>
+              💡 Dieser Code ist nur für dich -<br />
+              automatischer Login auf deinen Geräten
             </div>
           </div>
 
-          {/* Name-Eingabe */}
           <div style={{ marginBottom: '2rem' }}>
-            <label style={{
-              display: 'block',
-              marginBottom: '0.5rem',
-              fontWeight: '500',
-              color: 'var(--gray-dark)'
-            }}>
+            <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500', color: 'var(--gray-dark)' }}>
               Wie möchtest du genannt werden?
             </label>
             <input
               type="text"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
-              placeholder="Dein Name (z.B. Max Mustermann)"
+              placeholder="Dein Name (z.B. Anna Schmidt)"
               autoFocus
               style={{
                 width: '100%',
@@ -604,39 +572,17 @@ export default function Home() {
               fontSize: '1.1rem',
               fontWeight: '600',
               cursor: 'pointer',
-              transition: 'transform 0.2s',
-              marginBottom: '1rem'
+              transition: 'transform 0.2s'
             }}
             onMouseOver={(e) => e.currentTarget.style.transform = 'translateY(-2px)'}
             onMouseOut={(e) => e.currentTarget.style.transform = 'translateY(0)'}
           >
             Los geht's! 🚀
           </button>
-
-          {/* Code ändern */}
-          <button
-            onClick={handleCodeAendern}
-            style={{
-              width: '100%',
-              padding: '0.75rem',
-              background: 'transparent',
-              color: 'var(--gray-medium)',
-              border: '2px solid var(--gray-light)',
-              borderRadius: '0.5rem',
-              fontSize: '0.95rem',
-              cursor: 'pointer'
-            }}
-          >
-            Anderen Team-Code verwenden
-          </button>
         </div>
       </div>
     );
   }
-
-  // ============================================
-  // RENDER: LOGIN (alt, wird nicht mehr verwendet)
-  // ============================================
 
   // ============================================
   // RENDER: HAUPTAPP
@@ -670,38 +616,28 @@ export default function Home() {
             </p>
           </div>
           
-          <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '1rem'
-          }}>
-            {/* Code-Anzeige */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', flexWrap: 'wrap' }}>
             <div style={{
               background: 'rgba(255,255,255,0.2)',
               padding: '0.75rem 1.5rem',
               borderRadius: '0.5rem',
               border: '2px solid rgba(255,255,255,0.3)'
             }}>
-              <div style={{
-                fontSize: '0.75rem',
-                opacity: 0.8,
-                marginBottom: '0.125rem'
-              }}>
-                Team-Code:
+              <div style={{ fontSize: '0.75rem', opacity: 0.8, marginBottom: '0.125rem' }}>
+                Dein Code:
               </div>
               <div style={{
-                fontSize: '1.25rem',
+                fontSize: '1.1rem',
                 fontWeight: '700',
-                letterSpacing: '0.15rem',
+                letterSpacing: '0.1rem',
                 fontFamily: 'monospace'
               }}>
-                {accessCode}
+                {userCode}
               </div>
             </div>
 
-            {/* Code ändern */}
-            <button
-              onClick={handleCodeAendern}
+            <Link 
+              href="/admin"
               style={{
                 padding: '0.75rem 1.5rem',
                 background: 'rgba(255,255,255,0.2)',
@@ -709,15 +645,12 @@ export default function Home() {
                 border: '2px solid rgba(255,255,255,0.3)',
                 borderRadius: '0.5rem',
                 fontWeight: '600',
-                cursor: 'pointer',
                 fontSize: '0.95rem'
               }}
-              title="Team-Code ändern"
             >
-              🔄 Code ändern
-            </button>
+              📊 Dashboard
+            </Link>
 
-            {/* Abmelden */}
             <button
               onClick={handleLogout}
               style={{
@@ -726,8 +659,7 @@ export default function Home() {
                 color: 'white',
                 border: '2px solid white',
                 borderRadius: '0.5rem',
-                fontWeight: '600',
-                cursor: 'pointer'
+                fontWeight: '600'
               }}
             >
               Abmelden
@@ -736,11 +668,7 @@ export default function Home() {
         </div>
       </header>
 
-      <div style={{
-        maxWidth: '1400px',
-        margin: '0 auto',
-        padding: '0 2rem'
-      }}>
+      <div style={{ maxWidth: '1400px', margin: '0 auto', padding: '0 2rem' }}>
         {/* Neuen Prompt erstellen */}
         <div style={{
           background: 'white',
@@ -749,21 +677,13 @@ export default function Home() {
           boxShadow: 'var(--shadow)',
           marginBottom: '2rem'
         }}>
-          <h2 style={{
-            fontSize: '1.5rem',
-            marginBottom: '1.5rem',
-            color: 'var(--dark-blue)'
-          }}>
+          <h2 style={{ fontSize: '1.5rem', marginBottom: '1.5rem', color: 'var(--dark-blue)' }}>
             Neuen Prompt erstellen
           </h2>
 
           {/* Titel */}
           <div style={{ marginBottom: '1rem' }}>
-            <label style={{
-              display: 'block',
-              marginBottom: '0.5rem',
-              fontWeight: '500'
-            }}>
+            <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>
               Titel *
             </label>
             <input
@@ -783,11 +703,7 @@ export default function Home() {
 
           {/* Beschreibung */}
           <div style={{ marginBottom: '1rem' }}>
-            <label style={{
-              display: 'block',
-              marginBottom: '0.5rem',
-              fontWeight: '500'
-            }}>
+            <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>
               Beschreibung
             </label>
             <textarea
@@ -808,11 +724,7 @@ export default function Home() {
 
           {/* Prompt-Text */}
           <div style={{ marginBottom: '1rem' }}>
-            <label style={{
-              display: 'block',
-              marginBottom: '0.5rem',
-              fontWeight: '500'
-            }}>
+            <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>
               Prompt-Text *
             </label>
             <textarea
@@ -832,49 +744,80 @@ export default function Home() {
             />
           </div>
 
-          {/* Plattformen */}
+          {/* Plattformen & Modelle ACCORDION */}
           <div style={{ marginBottom: '1rem' }}>
-            <label style={{
-              display: 'block',
-              marginBottom: '0.5rem',
-              fontWeight: '500'
-            }}>
-              Plattformen * <span style={{ color: 'var(--gray-medium)', fontWeight: 'normal' }}>({neuePlattformen.length} ausgewählt)</span>
+            <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>
+              Plattformen & Modelle * 
+              <span style={{ color: 'var(--gray-medium)', fontWeight: 'normal', marginLeft: '0.5rem' }}>
+                ({Object.keys(neuePlattformenUndModelle).length} Plattformen, {Object.values(neuePlattformenUndModelle).flat().length} Modelle)
+              </span>
             </label>
             <div style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))',
-              gap: '0.5rem',
+              border: '2px solid var(--gray-light)',
+              borderRadius: '0.5rem',
               padding: '1rem',
-              background: 'var(--gray-light)',
-              borderRadius: '0.5rem'
+              background: 'var(--gray-light)'
             }}>
-              {PLATTFORMEN.map(plattform => (
-                <label key={plattform} style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '0.5rem',
-                  cursor: 'pointer'
-                }}>
-                  <input
-                    type="checkbox"
-                    checked={neuePlattformen.includes(plattform)}
-                    onChange={() => togglePlattform(plattform)}
-                    style={{ cursor: 'pointer' }}
-                  />
-                  <span style={{ fontSize: '0.95rem' }}>{plattform}</span>
-                </label>
+              {Object.entries(PLATTFORMEN_MIT_MODELLEN).map(([plattform, modelle]) => (
+                <details key={plattform} style={{ marginBottom: '0.75rem' }}>
+                  <summary style={{
+                    padding: '0.75rem',
+                    background: 'white',
+                    borderRadius: '0.5rem',
+                    fontWeight: '600',
+                    fontSize: '0.95rem',
+                    color: neuePlattformenUndModelle[plattform]?.length > 0 ? 'var(--green)' : 'var(--gray-dark)'
+                  }}>
+                    {plattform} 
+                    {neuePlattformenUndModelle[plattform]?.length > 0 && (
+                      <span style={{ marginLeft: '0.5rem', fontSize: '0.85rem' }}>
+                        ({neuePlattformenUndModelle[plattform].length})
+                      </span>
+                    )}
+                  </summary>
+                  <div style={{
+                    padding: '1rem',
+                    background: 'white',
+                    borderRadius: '0 0 0.5rem 0.5rem',
+                    marginTop: '0.25rem'
+                  }}>
+                    <div style={{
+                      display: 'grid',
+                      gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))',
+                      gap: '0.5rem'
+                    }}>
+                      {modelle.map(modell => (
+                        <label key={modell} style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '0.5rem',
+                          cursor: 'pointer',
+                          padding: '0.5rem',
+                          background: neuePlattformenUndModelle[plattform]?.includes(modell) 
+                            ? 'var(--light-blue)' 
+                            : 'transparent',
+                          borderRadius: '0.375rem',
+                          transition: 'background 0.2s'
+                        }}>
+                          <input
+                            type="checkbox"
+                            checked={neuePlattformenUndModelle[plattform]?.includes(modell) || false}
+                            onChange={() => toggleModell(plattform, modell)}
+                            style={{ cursor: 'pointer' }}
+                          />
+                          <span style={{ fontSize: '0.9rem' }}>{modell}</span>
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+                </details>
               ))}
             </div>
           </div>
 
           {/* Output-Formate */}
           <div style={{ marginBottom: '1rem' }}>
-            <label style={{
-              display: 'block',
-              marginBottom: '0.5rem',
-              fontWeight: '500'
-            }}>
+            <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>
               Output-Formate * <span style={{ color: 'var(--gray-medium)', fontWeight: 'normal' }}>({neueOutputFormate.length} ausgewählt)</span>
             </label>
             <div style={{
@@ -906,11 +849,7 @@ export default function Home() {
 
           {/* Anwendungsfälle */}
           <div style={{ marginBottom: '1rem' }}>
-            <label style={{
-              display: 'block',
-              marginBottom: '0.5rem',
-              fontWeight: '500'
-            }}>
+            <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>
               Anwendungsfälle * <span style={{ color: 'var(--gray-medium)', fontWeight: 'normal' }}>({neueAnwendungsfaelle.length} ausgewählt)</span>
             </label>
             {Object.entries(ANWENDUNGSFAELLE).map(([kategorie, faelle]) => (
@@ -954,11 +893,7 @@ export default function Home() {
 
           {/* Tags */}
           <div style={{ marginBottom: '1rem' }}>
-            <label style={{
-              display: 'block',
-              marginBottom: '0.5rem',
-              fontWeight: '500'
-            }}>
+            <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>
               Tags
             </label>
             <input
@@ -978,11 +913,7 @@ export default function Home() {
 
           {/* Kommentar */}
           <div style={{ marginBottom: '1.5rem' }}>
-            <label style={{
-              display: 'block',
-              marginBottom: '0.5rem',
-              fontWeight: '500'
-            }}>
+            <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>
               Kommentar
             </label>
             <textarea
@@ -1027,11 +958,7 @@ export default function Home() {
           boxShadow: 'var(--shadow)',
           marginBottom: '2rem'
         }}>
-          <h2 style={{
-            fontSize: '1.5rem',
-            marginBottom: '1rem',
-            color: 'var(--dark-blue)'
-          }}>
+          <h2 style={{ fontSize: '1.5rem', marginBottom: '1rem', color: 'var(--dark-blue)' }}>
             Prompts durchsuchen ({sortiertePrompts.length})
           </h2>
 
@@ -1064,7 +991,7 @@ export default function Home() {
               }}
             >
               <option value="">Alle Plattformen</option>
-              {PLATTFORMEN.map(p => (
+              {Object.keys(PLATTFORMEN_MIT_MODELLEN).map(p => (
                 <option key={p} value={p}>{p}</option>
               ))}
             </select>
@@ -1127,7 +1054,7 @@ export default function Home() {
           </div>
         )}
 
-        {/* Prompts Liste */}
+        {/* Keine Prompts */}
         {!loading && sortiertePrompts.length === 0 && (
           <div style={{
             background: 'white',
@@ -1136,10 +1063,7 @@ export default function Home() {
             textAlign: 'center',
             boxShadow: 'var(--shadow)'
           }}>
-            <p style={{
-              fontSize: '1.2rem',
-              color: 'var(--gray-medium)'
-            }}>
+            <p style={{ fontSize: '1.2rem', color: 'var(--gray-medium)' }}>
               {suchbegriff || filterPlattform || filterOutputFormat || filterAnwendungsfall
                 ? 'Keine Prompts gefunden.'
                 : 'Noch keine Prompts vorhanden. Erstelle den ersten!'}
@@ -1147,10 +1071,8 @@ export default function Home() {
           </div>
         )}
 
-        <div style={{
-          display: 'grid',
-          gap: '1.5rem'
-        }}>
+        {/* Prompts Liste */}
+        <div style={{ display: 'grid', gap: '1.5rem' }}>
           {sortiertePrompts.map(prompt => (
             <div key={prompt.id} style={{
               background: 'white',
@@ -1187,7 +1109,7 @@ export default function Home() {
                   onClick={() => handleLoeschen(prompt.id)}
                   style={{
                     padding: '0.5rem 1rem',
-                    background: prompt.erstelltVon === userId ? 'var(--red)' : 'var(--orange)',
+                    background: prompt.erstelltVon === userCode ? 'var(--red)' : 'var(--orange)',
                     color: 'white',
                     border: 'none',
                     borderRadius: '0.375rem',
@@ -1195,7 +1117,7 @@ export default function Home() {
                     cursor: 'pointer'
                   }}
                 >
-                  {prompt.erstelltVon === userId ? '🗑️ Löschen' : '📧 Löschanfrage'}
+                  {prompt.erstelltVon === userCode ? '🗑️ Löschen' : '📧 Löschanfrage'}
                 </button>
               </div>
 
@@ -1215,25 +1137,42 @@ export default function Home() {
 
               {/* Metadata */}
               <div style={{ marginBottom: '1rem' }}>
-                {/* Plattformen */}
-                {prompt.plattformen.length > 0 && (
+                {/* Plattformen & Modelle */}
+                {Object.keys(prompt.plattformenUndModelle).length > 0 && (
                   <div style={{ marginBottom: '0.5rem' }}>
                     <strong style={{ fontSize: '0.9rem', marginRight: '0.5rem' }}>
-                      Plattformen:
+                      Plattformen & Modelle:
                     </strong>
-                    {prompt.plattformen.map(p => (
-                      <span key={p} style={{
-                        display: 'inline-block',
-                        padding: '0.25rem 0.75rem',
-                        background: 'var(--purple)',
-                        color: 'white',
-                        borderRadius: '1rem',
-                        fontSize: '0.85rem',
-                        marginRight: '0.5rem',
-                        marginBottom: '0.5rem'
-                      }}>
-                        {p}
-                      </span>
+                    {Object.entries(prompt.plattformenUndModelle).map(([plattform, modelle]) => (
+                      <div key={plattform} style={{ marginBottom: '0.5rem' }}>
+                        <span style={{
+                          display: 'inline-block',
+                          padding: '0.25rem 0.75rem',
+                          background: 'var(--purple)',
+                          color: 'white',
+                          borderRadius: '1rem',
+                          fontSize: '0.85rem',
+                          marginRight: '0.5rem',
+                          marginBottom: '0.25rem',
+                          fontWeight: '600'
+                        }}>
+                          {plattform}
+                        </span>
+                        {modelle.map(modell => (
+                          <span key={modell} style={{
+                            display: 'inline-block',
+                            padding: '0.25rem 0.75rem',
+                            background: 'var(--light-blue)',
+                            color: 'var(--primary-blue)',
+                            borderRadius: '1rem',
+                            fontSize: '0.8rem',
+                            marginRight: '0.5rem',
+                            marginBottom: '0.25rem'
+                          }}>
+                            {modell}
+                          </span>
+                        ))}
+                      </div>
                     ))}
                   </div>
                 )}
