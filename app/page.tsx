@@ -344,6 +344,9 @@ export default function Home() {
     } else {
       // Löschanfrage senden
       if (confirm('Du kannst nur eigene Prompts löschen. Möchtest du eine Löschanfrage senden?')) {
+        const grund = window.prompt('Warum möchtest du diesen Prompt löschen?');
+        if (!grund) return; // Abbruch wenn kein Grund angegeben
+        
         try {
           const response = await fetch('https://hook.eu1.make.com/1qc0oua02l1ry7jyitimxeqfdtja54xa', {
             method: 'POST',
@@ -354,7 +357,7 @@ export default function Home() {
               promptId: promptId,
               titel: prompt.titel,
               angefordertVon: username,
-              grund: prompt(`Warum möchtest du diesen Prompt löschen?`)
+              grund: grund
             })
           });
 
