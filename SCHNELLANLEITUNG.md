@@ -58,11 +58,19 @@ npm run dev
 
 Öffne: [http://localhost:3000](http://localhost:3000)
 
-**Teste:**
-- Anmelden (Name + Code)
-- Prompt erstellen
-- Bewerten
-- Kopieren
+**Teste das neue Login-System:**
+1. **Automatischer Code** wird generiert (z.B. `A3K9X2`)
+2. **Name eingeben** (z.B. "Max Mustermann")
+3. **"Los geht's!" klicken**
+4. **Prompt erstellen** und testen
+5. **Seite neu laden** → Du bist automatisch eingeloggt! ✅
+
+**Code-Sharing testen:**
+1. Notiere dir deinen Code (steht im Header)
+2. Browser-Daten löschen oder Inkognito-Fenster öffnen
+3. "Code ändern" klicken
+4. Deinen notierten Code eingeben
+5. Du siehst die gleichen Prompts! 🎉
 
 ## 4. GitHub hochladen (2 Min)
 

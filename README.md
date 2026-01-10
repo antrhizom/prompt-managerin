@@ -153,13 +153,27 @@ vercel --prod
 
 ## 📖 Verwendung
 
+### Erster Besuch - Automatisches Setup
+1. **Automatischer Code**: Beim ersten Besuch wird dir automatisch ein 6-stelliger Team-Code zugewiesen (z.B. `A3K9X2`)
+2. **Name eingeben**: Gib deinen Namen ein (z.B. "Anna Schmidt")
+3. **Fertig!**: Du bist eingeloggt und kannst loslegen
+
+### Wiederkehrender Besuch
+- **Automatischer Login**: Beim nächsten Besuch wirst du automatisch mit deinem gespeicherten Namen und Code eingeloggt
+- **Kein Passwort nötig**: Deine Daten bleiben im Browser gespeichert
+
+### Team-Code teilen
+1. **Code anzeigen**: Dein Team-Code wird im Header angezeigt
+2. **Code teilen**: Teile deinen Code mit Kollegen (z.B. per E-Mail)
+3. **Code eingeben**: Andere klicken auf "Code ändern" und geben deinen Code ein
+4. **Gleiche Datenbank**: Alle mit dem gleichen Code sehen die gleichen Prompts!
+
+### Code wechseln
+- **"🔄 Code ändern"** im Header klicken
+- Neuen Team-Code eingeben
+- Jetzt nutzt du eine andere Team-Datenbank
+
 ### Anmelden
-- **Name**: Dein Anzeigename (z.B. "Anna Schmidt")
-- **Zugangscode**: Team-Code für gemeinsame Datenbank
-
-💡 **Tipp**: Alle mit dem gleichen Code sehen die gleichen Prompts!
-
-### Prompt erstellen
 1. **Titel** (Pflicht): Kurzer, beschreibender Titel
 2. **Beschreibung** (Optional): Zusätzliche Erklärung
 3. **Prompt-Text** (Pflicht): Der eigentliche Prompt

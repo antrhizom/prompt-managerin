@@ -129,6 +129,7 @@ export default function Home() {
   const [username, setUsername] = useState('');
   const [accessCode, setAccessCode] = useState('');
   const [userId, setUserId] = useState('');
+  const [showNameInput, setShowNameInput] = useState(false);
 
   // State für Prompts
   const [prompts, setPrompts] = useState<Prompt[]>([]);
@@ -155,39 +156,97 @@ export default function Home() {
   // AUTHENTIFIZIERUNG
   // ============================================
 
+  // Code generieren (6-stelliger alphanumerischer Code)
+  const generiereCode = () => {
+    const zeichen = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    let code = '';
+    for (let i = 0; i < 6; i++) {
+      code += zeichen.charAt(Math.floor(Math.random() * zeichen.length));
+    }
+    return code;
+  };
+
   useEffect(() => {
     const gespeicherterUsername = localStorage.getItem('username');
+    const gespeicherterCode = localStorage.getItem('accessCode');
     const gespeicherterUserId = localStorage.getItem('userId');
     
-    if (gespeicherterUsername && gespeicherterUserId) {
+    if (gespeicherterUsername && gespeicherterCode && gespeicherterUserId) {
+      // Automatisch einloggen
       setUsername(gespeicherterUsername);
+      setAccessCode(gespeicherterCode);
       setUserId(gespeicherterUserId);
       setIsAuthenticated(true);
+    } else if (gespeicherterCode && gespeicherterUserId) {
+      // Code vorhanden, aber kein Name - Name eingeben
+      setAccessCode(gespeicherterCode);
+      setUserId(gespeicherterUserId);
+      setShowNameInput(true);
+    } else {
+      // Neuer Nutzer - Code generieren
+      const neuerCode = generiereCode();
+      const neueUserId = `user_${neuerCode}`;
+      
+      setAccessCode(neuerCode);
+      setUserId(neueUserId);
+      
+      localStorage.setItem('accessCode', neuerCode);
+      localStorage.setItem('userId', neueUserId);
+      
+      setShowNameInput(true);
     }
   }, []);
 
-  const handleLogin = () => {
-    if (username.trim() && accessCode.trim()) {
-      // Erstelle User-ID aus Zugangscode
-      const generierteUserId = `user_${accessCode}`;
-      
+  const handleNameSpeichern = () => {
+    if (username.trim()) {
       localStorage.setItem('username', username);
-      localStorage.setItem('userId', generierteUserId);
-      
-      setUserId(generierteUserId);
       setIsAuthenticated(true);
+      setShowNameInput(false);
     } else {
-      alert('Bitte Name und Zugangscode eingeben!');
+      alert('Bitte gib einen Namen ein!');
+    }
+  };
+
+  const handleCodeAendern = () => {
+    if (confirm('Möchtest du einen anderen Team-Code verwenden? Deine aktuellen Daten bleiben erhalten.')) {
+      const neuerCode = window.prompt('Gib den Team-Code ein:');
+      if (neuerCode && neuerCode.trim()) {
+        const neueUserId = `user_${neuerCode.trim().toUpperCase()}`;
+        
+        setAccessCode(neuerCode.trim().toUpperCase());
+        setUserId(neueUserId);
+        
+        localStorage.setItem('accessCode', neuerCode.trim().toUpperCase());
+        localStorage.setItem('userId', neueUserId);
+        
+        alert('✅ Code geändert! Du nutzt jetzt die Datenbank des Teams: ' + neuerCode.trim().toUpperCase());
+      }
     }
   };
 
   const handleLogout = () => {
-    localStorage.removeItem('username');
-    localStorage.removeItem('userId');
-    setUsername('');
-    setUserId('');
-    setAccessCode('');
-    setIsAuthenticated(false);
+    if (confirm('Möchtest du dich wirklich abmelden? Deine Daten bleiben gespeichert.')) {
+      localStorage.removeItem('username');
+      localStorage.removeItem('userId');
+      localStorage.removeItem('accessCode');
+      setUsername('');
+      setUserId('');
+      setAccessCode('');
+      setIsAuthenticated(false);
+      setShowNameInput(false);
+      
+      // Neuen Code generieren
+      const neuerCode = generiereCode();
+      const neueUserId = `user_${neuerCode}`;
+      
+      setAccessCode(neuerCode);
+      setUserId(neueUserId);
+      
+      localStorage.setItem('accessCode', neuerCode);
+      localStorage.setItem('userId', neueUserId);
+      
+      setShowNameInput(true);
+    }
   };
 
   // ============================================
@@ -433,10 +492,10 @@ export default function Home() {
   };
 
   // ============================================
-  // RENDER: LOGIN
+  // RENDER: NAME EINGEBEN
   // ============================================
 
-  if (!isAuthenticated) {
+  if (showNameInput) {
     return (
       <div style={{
         minHeight: '100vh',
@@ -452,7 +511,7 @@ export default function Home() {
           borderRadius: '1rem',
           boxShadow: '0 20px 60px rgba(0,0,0,0.3)',
           width: '100%',
-          maxWidth: '400px'
+          maxWidth: '500px'
         }}>
           <h1 style={{
             fontSize: '2rem',
@@ -460,41 +519,53 @@ export default function Home() {
             color: 'var(--dark-blue)',
             textAlign: 'center'
           }}>
-            Prompting Manager
+            Willkommen! 👋
           </h1>
           <p style={{
             textAlign: 'center',
             color: 'var(--gray-medium)',
             marginBottom: '2rem'
           }}>
-            Bildungs-Prompts verwalten & teilen
+            Dein Team-Code wurde erstellt
           </p>
 
-          <div style={{ marginBottom: '1.5rem' }}>
-            <label style={{
-              display: 'block',
+          {/* Code-Anzeige */}
+          <div style={{
+            background: 'var(--light-blue)',
+            padding: '1.5rem',
+            borderRadius: '0.75rem',
+            marginBottom: '2rem',
+            textAlign: 'center',
+            border: '2px dashed var(--primary-blue)'
+          }}>
+            <div style={{
+              fontSize: '0.9rem',
+              color: 'var(--gray-medium)',
               marginBottom: '0.5rem',
-              fontWeight: '500',
-              color: 'var(--gray-dark)'
+              fontWeight: '500'
             }}>
-              Name
-            </label>
-            <input
-              type="text"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              placeholder="Dein Name"
-              style={{
-                width: '100%',
-                padding: '0.75rem',
-                border: '2px solid var(--gray-light)',
-                borderRadius: '0.5rem',
-                fontSize: '1rem'
-              }}
-              onKeyPress={(e) => e.key === 'Enter' && handleLogin()}
-            />
+              Dein Team-Code:
+            </div>
+            <div style={{
+              fontSize: '2.5rem',
+              fontWeight: '700',
+              color: 'var(--primary-blue)',
+              letterSpacing: '0.3rem',
+              fontFamily: 'monospace'
+            }}>
+              {accessCode}
+            </div>
+            <div style={{
+              fontSize: '0.85rem',
+              color: 'var(--gray-medium)',
+              marginTop: '0.75rem'
+            }}>
+              💡 Teile diesen Code mit deinem Team,<br />
+              um die gleichen Prompts zu sehen
+            </div>
           </div>
 
+          {/* Name-Eingabe */}
           <div style={{ marginBottom: '2rem' }}>
             <label style={{
               display: 'block',
@@ -502,13 +573,14 @@ export default function Home() {
               fontWeight: '500',
               color: 'var(--gray-dark)'
             }}>
-              Zugangscode
+              Wie möchtest du genannt werden?
             </label>
             <input
               type="text"
-              value={accessCode}
-              onChange={(e) => setAccessCode(e.target.value)}
-              placeholder="Team-Code eingeben"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              placeholder="Dein Name (z.B. Max Mustermann)"
+              autoFocus
               style={{
                 width: '100%',
                 padding: '0.75rem',
@@ -516,19 +588,12 @@ export default function Home() {
                 borderRadius: '0.5rem',
                 fontSize: '1rem'
               }}
-              onKeyPress={(e) => e.key === 'Enter' && handleLogin()}
+              onKeyPress={(e) => e.key === 'Enter' && handleNameSpeichern()}
             />
-            <small style={{
-              display: 'block',
-              marginTop: '0.5rem',
-              color: 'var(--gray-medium)'
-            }}>
-              Alle mit dem gleichen Code teilen die Datenbank
-            </small>
           </div>
 
           <button
-            onClick={handleLogin}
+            onClick={handleNameSpeichern}
             style={{
               width: '100%',
               padding: '1rem',
@@ -539,17 +604,39 @@ export default function Home() {
               fontSize: '1.1rem',
               fontWeight: '600',
               cursor: 'pointer',
-              transition: 'transform 0.2s'
+              transition: 'transform 0.2s',
+              marginBottom: '1rem'
             }}
             onMouseOver={(e) => e.currentTarget.style.transform = 'translateY(-2px)'}
             onMouseOut={(e) => e.currentTarget.style.transform = 'translateY(0)'}
           >
-            Anmelden
+            Los geht's! 🚀
+          </button>
+
+          {/* Code ändern */}
+          <button
+            onClick={handleCodeAendern}
+            style={{
+              width: '100%',
+              padding: '0.75rem',
+              background: 'transparent',
+              color: 'var(--gray-medium)',
+              border: '2px solid var(--gray-light)',
+              borderRadius: '0.5rem',
+              fontSize: '0.95rem',
+              cursor: 'pointer'
+            }}
+          >
+            Anderen Team-Code verwenden
           </button>
         </div>
       </div>
     );
   }
+
+  // ============================================
+  // RENDER: LOGIN (alt, wird nicht mehr verwendet)
+  // ============================================
 
   // ============================================
   // RENDER: HAUPTAPP
@@ -570,7 +657,9 @@ export default function Home() {
           margin: '0 auto',
           display: 'flex',
           justifyContent: 'space-between',
-          alignItems: 'center'
+          alignItems: 'center',
+          flexWrap: 'wrap',
+          gap: '1rem'
         }}>
           <div>
             <h1 style={{ fontSize: '2rem', marginBottom: '0.25rem' }}>
@@ -580,20 +669,70 @@ export default function Home() {
               Willkommen, {username}!
             </p>
           </div>
-          <button
-            onClick={handleLogout}
-            style={{
-              padding: '0.75rem 1.5rem',
+          
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '1rem'
+          }}>
+            {/* Code-Anzeige */}
+            <div style={{
               background: 'rgba(255,255,255,0.2)',
-              color: 'white',
-              border: '2px solid white',
+              padding: '0.75rem 1.5rem',
               borderRadius: '0.5rem',
-              fontWeight: '600',
-              cursor: 'pointer'
-            }}
-          >
-            Abmelden
-          </button>
+              border: '2px solid rgba(255,255,255,0.3)'
+            }}>
+              <div style={{
+                fontSize: '0.75rem',
+                opacity: 0.8,
+                marginBottom: '0.125rem'
+              }}>
+                Team-Code:
+              </div>
+              <div style={{
+                fontSize: '1.25rem',
+                fontWeight: '700',
+                letterSpacing: '0.15rem',
+                fontFamily: 'monospace'
+              }}>
+                {accessCode}
+              </div>
+            </div>
+
+            {/* Code ändern */}
+            <button
+              onClick={handleCodeAendern}
+              style={{
+                padding: '0.75rem 1.5rem',
+                background: 'rgba(255,255,255,0.2)',
+                color: 'white',
+                border: '2px solid rgba(255,255,255,0.3)',
+                borderRadius: '0.5rem',
+                fontWeight: '600',
+                cursor: 'pointer',
+                fontSize: '0.95rem'
+              }}
+              title="Team-Code ändern"
+            >
+              🔄 Code ändern
+            </button>
+
+            {/* Abmelden */}
+            <button
+              onClick={handleLogout}
+              style={{
+                padding: '0.75rem 1.5rem',
+                background: 'rgba(255,255,255,0.2)',
+                color: 'white',
+                border: '2px solid white',
+                borderRadius: '0.5rem',
+                fontWeight: '600',
+                cursor: 'pointer'
+              }}
+            >
+              Abmelden
+            </button>
+          </div>
         </div>
       </header>
 
