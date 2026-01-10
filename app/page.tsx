@@ -375,7 +375,7 @@ export default function Home() {
   // FILTERN & SORTIEREN
   // ============================================
 
-  const gefilterte Prompts = prompts.filter(prompt => {
+  const gefiltertePrompts = prompts.filter(prompt => {
     const suchMatch = suchbegriff === '' || 
       prompt.titel.toLowerCase().includes(suchbegriff.toLowerCase()) ||
       prompt.beschreibung.toLowerCase().includes(suchbegriff.toLowerCase()) ||
