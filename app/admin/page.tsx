@@ -100,7 +100,7 @@ export default function AdminDashboard() {
     .slice(0, 5);
 
   // Beliebteste Prompts (Top 5 nach Bewertungen)
-  const beliebteste Prompts = [...prompts]
+  const beliebtestePrompts = [...prompts]
     .sort((a, b) => {
       const summeA = Object.values(a.bewertungen).reduce((s, v) => s + v, 0);
       const summeB = Object.values(b.bewertungen).reduce((s, v) => s + v, 0);
@@ -454,7 +454,7 @@ export default function AdminDashboard() {
               Top 5 Beliebteste Prompts (Bewertungen)
             </h2>
             <div style={{ display: 'grid', gap: '1rem' }}>
-              {beliebteste Prompts.map((prompt, index) => {
+              {beliebtestePrompts.map((prompt, index) => {
                 const gesamtBewertung = Object.values(prompt.bewertungen).reduce((s, v) => s + v, 0);
                 return (
                   <div key={prompt.id} style={{
