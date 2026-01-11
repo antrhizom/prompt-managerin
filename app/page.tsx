@@ -185,6 +185,7 @@ export default function Home() {
   const [filterPlattform, setFilterPlattform] = useState('');
   const [filterOutputFormat, setFilterOutputFormat] = useState('');
   const [filterAnwendungsfall, setFilterAnwendungsfall] = useState('');
+  const [filterTag, setFilterTag] = useState('');
   const [sortierung, setSortierung] = useState<'nutzung' | 'bewertung' | 'aktuell'>('aktuell');
 
   // ============================================
@@ -453,12 +454,24 @@ export default function Home() {
   // FILTERN & SORTIEREN
   // ============================================
 
+  // Alle verwendeten Tags sammeln
+  const alleTags = Array.from(new Set(
+    prompts.flatMap(p => p.tags || [])
+  )).sort();
+
   const gefiltertePrompts = prompts.filter(prompt => {
-    const suchMatch = suchbegriff === '' || 
-      prompt.titel.toLowerCase().includes(suchbegriff.toLowerCase()) ||
-      prompt.beschreibung.toLowerCase().includes(suchbegriff.toLowerCase()) ||
-      prompt.promptText.toLowerCase().includes(suchbegriff.toLowerCase()) ||
-      (prompt.tags || []).some(tag => tag.toLowerCase().includes(suchbegriff.toLowerCase()));
+    // Hashtag-Suche: Wenn # am Anfang, nur in Tags suchen
+    let suchMatch = true;
+    if (suchbegriff.startsWith('#')) {
+      const tagSuche = suchbegriff.slice(1).toLowerCase();
+      suchMatch = (prompt.tags || []).some(tag => tag.toLowerCase().includes(tagSuche));
+    } else {
+      suchMatch = suchbegriff === '' || 
+        prompt.titel.toLowerCase().includes(suchbegriff.toLowerCase()) ||
+        prompt.beschreibung.toLowerCase().includes(suchbegriff.toLowerCase()) ||
+        prompt.promptText.toLowerCase().includes(suchbegriff.toLowerCase()) ||
+        (prompt.tags || []).some(tag => tag.toLowerCase().includes(suchbegriff.toLowerCase()));
+    }
 
     const plattformMatch = filterPlattform === '' || 
       Object.keys(prompt.plattformenUndModelle || {}).includes(filterPlattform);
@@ -469,7 +482,10 @@ export default function Home() {
     const anwendungMatch = filterAnwendungsfall === '' || 
       (prompt.anwendungsfaelle || []).includes(filterAnwendungsfall);
 
-    return suchMatch && plattformMatch && outputMatch && anwendungMatch;
+    const tagMatch = filterTag === '' ||
+      (prompt.tags || []).includes(filterTag);
+
+    return suchMatch && plattformMatch && outputMatch && anwendungMatch && tagMatch;
   });
 
   const sortiertePrompts = [...gefiltertePrompts].sort((a, b) => {
@@ -967,18 +983,31 @@ export default function Home() {
             gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
             gap: '1rem'
           }}>
-            <input
-              type="text"
-              value={suchbegriff}
-              onChange={(e) => setSuchbegriff(e.target.value)}
-              placeholder="🔍 Suchen..."
-              style={{
-                padding: '0.75rem',
-                border: '2px solid var(--gray-light)',
-                borderRadius: '0.5rem',
-                fontSize: '1rem'
-              }}
-            />
+            <div>
+              <input
+                type="text"
+                value={suchbegriff}
+                onChange={(e) => setSuchbegriff(e.target.value)}
+                placeholder="🔍 Suchen... (Tipp: #tag für Hashtags)"
+                style={{
+                  width: '100%',
+                  padding: '0.75rem',
+                  border: '2px solid var(--gray-light)',
+                  borderRadius: '0.5rem',
+                  fontSize: '1rem'
+                }}
+              />
+              {suchbegriff.startsWith('#') && (
+                <div style={{
+                  fontSize: '0.75rem',
+                  color: 'var(--green)',
+                  marginTop: '0.25rem',
+                  fontWeight: '500'
+                }}>
+                  🏷️ Suche nur in Tags
+                </div>
+              )}
+            </div>
 
             <select
               value={filterPlattform}
@@ -1029,6 +1058,22 @@ export default function Home() {
             </select>
 
             <select
+              value={filterTag}
+              onChange={(e) => setFilterTag(e.target.value)}
+              style={{
+                padding: '0.75rem',
+                border: '2px solid var(--gray-light)',
+                borderRadius: '0.5rem',
+                fontSize: '1rem'
+              }}
+            >
+              <option value="">Alle Tags 🏷️</option>
+              {alleTags.map(tag => (
+                <option key={tag} value={tag}>#{tag}</option>
+              ))}
+            </select>
+
+            <select
               value={sortierung}
               onChange={(e) => setSortierung(e.target.value as any)}
               style={{
@@ -1043,6 +1088,32 @@ export default function Home() {
               <option value="bewertung">Best bewertet</option>
             </select>
           </div>
+
+          {/* Filter zurücksetzen Button */}
+          {(suchbegriff || filterPlattform || filterOutputFormat || filterAnwendungsfall || filterTag) && (
+            <button
+              onClick={() => {
+                setSuchbegriff('');
+                setFilterPlattform('');
+                setFilterOutputFormat('');
+                setFilterAnwendungsfall('');
+                setFilterTag('');
+              }}
+              style={{
+                marginTop: '1rem',
+                padding: '0.5rem 1rem',
+                background: 'var(--gray-light)',
+                color: 'var(--gray-dark)',
+                border: '2px solid var(--gray-medium)',
+                borderRadius: '0.5rem',
+                fontSize: '0.9rem',
+                fontWeight: '600',
+                cursor: 'pointer'
+              }}
+            >
+              ✖️ Filter zurücksetzen
+            </button>
+          )}
         </div>
 
         {/* Loading */}

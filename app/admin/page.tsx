@@ -20,6 +20,14 @@ interface Prompt {
 export default function AdminDashboard() {
   const [prompts, setPrompts] = useState<Prompt[]>([]);
   const [loading, setLoading] = useState(true);
+  const [lastRefresh, setLastRefresh] = useState(new Date());
+
+  const handleRefresh = () => {
+    setLoading(true);
+    setLastRefresh(new Date());
+    // onSnapshot wird automatisch neu geladen
+    setTimeout(() => setLoading(false), 500);
+  };
 
   useEffect(() => {
     const q = query(collection(db, 'prompts'));
@@ -147,7 +155,9 @@ export default function AdminDashboard() {
           margin: '0 auto',
           display: 'flex',
           justifyContent: 'space-between',
-          alignItems: 'center'
+          alignItems: 'center',
+          flexWrap: 'wrap',
+          gap: '1rem'
         }}>
           <div>
             <h1 style={{ fontSize: '2rem', marginBottom: '0.25rem' }}>
@@ -156,24 +166,64 @@ export default function AdminDashboard() {
             <p style={{ opacity: 0.9 }}>
               Übersicht über alle Prompts und Statistiken
             </p>
+            <p style={{ opacity: 0.7, fontSize: '0.85rem', marginTop: '0.25rem' }}>
+              Letztes Update: {lastRefresh.toLocaleTimeString('de-DE')}
+            </p>
           </div>
-          <Link 
-            href="/"
-            style={{
-              padding: '0.75rem 1.5rem',
-              background: 'rgba(255,255,255,0.2)',
-              color: 'white',
-              border: '2px solid white',
-              borderRadius: '0.5rem',
-              fontWeight: '600'
-            }}
-          >
-            ← Zurück
-          </Link>
+          <div style={{ display: 'flex', gap: '1rem' }}>
+            <button
+              onClick={handleRefresh}
+              disabled={loading}
+              style={{
+                padding: '0.75rem 1.5rem',
+                background: loading ? 'rgba(255,255,255,0.1)' : 'rgba(255,255,255,0.2)',
+                color: 'white',
+                border: '2px solid white',
+                borderRadius: '0.5rem',
+                fontWeight: '600',
+                cursor: loading ? 'not-allowed' : 'pointer',
+                opacity: loading ? 0.6 : 1
+              }}
+            >
+              {loading ? '🔄 Lädt...' : '🔄 Aktualisieren'}
+            </button>
+            <Link 
+              href="/"
+              style={{
+                padding: '0.75rem 1.5rem',
+                background: 'rgba(255,255,255,0.2)',
+                color: 'white',
+                border: '2px solid white',
+                borderRadius: '0.5rem',
+                fontWeight: '600'
+              }}
+            >
+              ← Zurück
+            </Link>
+          </div>
         </div>
       </header>
 
       <div style={{ maxWidth: '1400px', margin: '0 auto', padding: '0 2rem' }}>
+        {/* Hinweis bei Cache-Problemen */}
+        {prompts.length > 0 && (
+          <div style={{
+            background: '#fef3c7',
+            padding: '1rem',
+            borderRadius: '0.5rem',
+            marginBottom: '1.5rem',
+            border: '2px solid var(--orange)',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '1rem'
+          }}>
+            <span style={{ fontSize: '1.5rem' }}>💡</span>
+            <div style={{ flex: 1 }}>
+              <strong>Hinweis:</strong> Falls gelöschte Prompts noch angezeigt werden, klicke auf "🔄 Aktualisieren" um die neuesten Daten zu laden.
+            </div>
+          </div>
+        )}
+
         {/* Übersicht-Karten */}
         <div style={{
           display: 'grid',

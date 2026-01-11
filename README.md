@@ -1,8 +1,20 @@
-# Prompting Manager v2.0 📝
+# Prompting Manager v2.1 📝
 
 Eine interaktive Web-Anwendung zum Verwalten, Bewerten und Teilen von KI-Prompts für Bildungszwecke.
 
-## 🎯 Neue Features in v2.0
+## 🎯 Neue Features in v2.1
+
+### 1. Hashtag-Suche 🏷️
+- **Tag-Filter**: Eigener Dropdown mit allen verwendeten Tags
+- **#-Suche**: Gib `#tag` in die Suche ein → sucht nur in Tags
+- **Smart-Suche**: Normale Suche durchsucht alles, Hashtag-Suche nur Tags
+
+### 2. Verbessertes Admin-Dashboard
+- **Refresh-Button**: "🔄 Aktualisieren" für neueste Daten
+- **Letztes Update**: Zeigt wann die Daten zuletzt geladen wurden
+- **Cache-Hinweis**: Info-Box falls gelöschte Prompts noch sichtbar sind
+
+## 🎯 Features v2.0
 
 ### 1. Individuelles Login-System
 - **Persönlicher Code**: Jeder Nutzer erhält einen einzigartigen 8-stelligen Code (z.B. `USER-A3K9X2B7`)
@@ -165,9 +177,16 @@ vercel --prod
 - Oder navigiere zu `/admin`
 
 ### Prompts nutzen
-- **Suchen**: Volltextsuche
-- **Filtern**: Nach Plattform, Format, Anwendungsfall
-- **Bewerten**: Emoji-Bewertungen
+- **Suchen**: 
+  - Normale Suche: Durchsucht Titel, Beschreibung, Prompt-Text und Tags
+  - Hashtag-Suche: `#mathematik` → sucht nur in Tags
+- **Filtern**: 
+  - Nach Plattform (z.B. "ChatGPT / OpenAI")
+  - Nach Output-Format (z.B. "PDF")
+  - Nach Anwendungsfall (z.B. "Übungsaufgaben erstellen")
+  - Nach Tag (Dropdown mit allen verwendeten Tags)
+- **Filter zurücksetzen**: Button erscheint automatisch wenn Filter aktiv sind
+- **Bewerten**: Emoji-Bewertungen (👍 ❤️ 🔥 ⭐ 💡)
 - **Kopieren**: "📋 Kopieren" → Prompt in Zwischenablage + Nutzung zählt
 
 ## 🏗️ Technologie-Stack
@@ -257,6 +276,12 @@ npm run build
 ### Admin-Dashboard zeigt keine Daten
 - Mindestens 1 Prompt muss erstellt sein
 - Firebase-Verbindung prüfen
+
+### Gelöschte Prompts werden noch angezeigt
+- **Im Dashboard**: Klicke auf "🔄 Aktualisieren"
+- **Hauptseite**: Seite neu laden (F5 / Cmd+R)
+- **Ursache**: Firebase Real-time Cache
+- **Lösung**: Nach einigen Sekunden automatisch aktualisiert
 
 ## 💰 Firebase Kosten
 
