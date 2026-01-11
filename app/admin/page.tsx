@@ -49,7 +49,7 @@ export default function AdminDashboard() {
 
   // Gesamte Bewertungen
   const gesamtBewertungen = prompts.reduce((sum, p) => 
-    sum + Object.values(p.bewertungen).reduce((s, v) => s + v, 0), 0
+    sum + Object.values(p.bewertungen || {}).reduce((s, v) => s + v, 0), 0
   );
 
   // Gesamte Nutzungen
@@ -58,7 +58,7 @@ export default function AdminDashboard() {
   // Prompts pro Output-Format
   const promptsProFormat: { [key: string]: number } = {};
   prompts.forEach(p => {
-    p.outputFormate.forEach(format => {
+    (p.outputFormate || []).forEach(format => {
       promptsProFormat[format] = (promptsProFormat[format] || 0) + 1;
     });
   });
@@ -66,7 +66,7 @@ export default function AdminDashboard() {
   // Prompts pro Plattform
   const promptsProPlattform: { [key: string]: number } = {};
   prompts.forEach(p => {
-    Object.keys(p.plattformenUndModelle).forEach(plattform => {
+    Object.keys(p.plattformenUndModelle || {}).forEach(plattform => {
       promptsProPlattform[plattform] = (promptsProPlattform[plattform] || 0) + 1;
     });
   });
@@ -74,7 +74,7 @@ export default function AdminDashboard() {
   // Prompts pro Modell (Top 10)
   const promptsProModell: { [key: string]: number } = {};
   prompts.forEach(p => {
-    Object.values(p.plattformenUndModelle).flat().forEach(modell => {
+    Object.values(p.plattformenUndModelle || {}).flat().forEach(modell => {
       promptsProModell[modell] = (promptsProModell[modell] || 0) + 1;
     });
   });
@@ -85,7 +85,7 @@ export default function AdminDashboard() {
   // Prompts pro Anwendungsfall
   const promptsProAnwendungsfall: { [key: string]: number } = {};
   prompts.forEach(p => {
-    p.anwendungsfaelle.forEach(fall => {
+    (p.anwendungsfaelle || []).forEach(fall => {
       promptsProAnwendungsfall[fall] = (promptsProAnwendungsfall[fall] || 0) + 1;
     });
   });
@@ -102,8 +102,8 @@ export default function AdminDashboard() {
   // Beliebteste Prompts (Top 5 nach Bewertungen)
   const beliebtestePrompts = [...prompts]
     .sort((a, b) => {
-      const summeA = Object.values(a.bewertungen).reduce((s, v) => s + v, 0);
-      const summeB = Object.values(b.bewertungen).reduce((s, v) => s + v, 0);
+      const summeA = Object.values(a.bewertungen || {}).reduce((s, v) => s + v, 0);
+      const summeB = Object.values(b.bewertungen || {}).reduce((s, v) => s + v, 0);
       return summeB - summeA;
     })
     .slice(0, 5);
@@ -455,7 +455,7 @@ export default function AdminDashboard() {
             </h2>
             <div style={{ display: 'grid', gap: '1rem' }}>
               {beliebtestePrompts.map((prompt, index) => {
-                const gesamtBewertung = Object.values(prompt.bewertungen).reduce((s, v) => s + v, 0);
+                const gesamtBewertung = Object.values(prompt.bewertungen || {}).reduce((s, v) => s + v, 0);
                 return (
                   <div key={prompt.id} style={{
                     padding: '1rem',
@@ -474,7 +474,7 @@ export default function AdminDashboard() {
                           {prompt.titel}
                         </div>
                         <div style={{ fontSize: '0.85rem', color: 'var(--gray-medium)', marginTop: '0.25rem' }}>
-                          {Object.entries(prompt.bewertungen)
+                          {Object.entries(prompt.bewertungen || {})
                             .filter(([_, count]) => count > 0)
                             .map(([emoji, count]) => `${emoji} ${count}`)
                             .join(' · ')}

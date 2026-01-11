@@ -376,8 +376,8 @@ export default function Home() {
       if (!prompt) return;
 
       const neueBewertungen = {
-        ...prompt.bewertungen,
-        [emoji]: (prompt.bewertungen[emoji] || 0) + 1
+        ...(prompt.bewertungen || {}),
+        [emoji]: ((prompt.bewertungen || {})[emoji] || 0) + 1
       };
 
       await updateDoc(doc(db, 'prompts', promptId), {
@@ -394,7 +394,7 @@ export default function Home() {
       if (!prompt) return;
 
       await updateDoc(doc(db, 'prompts', promptId), {
-        nutzungsanzahl: prompt.nutzungsanzahl + 1
+        nutzungsanzahl: (prompt.nutzungsanzahl || 0) + 1
       });
     } catch (error) {
       console.error('Fehler beim Zählen:', error);
@@ -458,16 +458,16 @@ export default function Home() {
       prompt.titel.toLowerCase().includes(suchbegriff.toLowerCase()) ||
       prompt.beschreibung.toLowerCase().includes(suchbegriff.toLowerCase()) ||
       prompt.promptText.toLowerCase().includes(suchbegriff.toLowerCase()) ||
-      prompt.tags.some(tag => tag.toLowerCase().includes(suchbegriff.toLowerCase()));
+      (prompt.tags || []).some(tag => tag.toLowerCase().includes(suchbegriff.toLowerCase()));
 
     const plattformMatch = filterPlattform === '' || 
-      Object.keys(prompt.plattformenUndModelle).includes(filterPlattform);
+      Object.keys(prompt.plattformenUndModelle || {}).includes(filterPlattform);
     
     const outputMatch = filterOutputFormat === '' || 
-      prompt.outputFormate.includes(filterOutputFormat);
+      (prompt.outputFormate || []).includes(filterOutputFormat);
     
     const anwendungMatch = filterAnwendungsfall === '' || 
-      prompt.anwendungsfaelle.includes(filterAnwendungsfall);
+      (prompt.anwendungsfaelle || []).includes(filterAnwendungsfall);
 
     return suchMatch && plattformMatch && outputMatch && anwendungMatch;
   });
@@ -476,8 +476,8 @@ export default function Home() {
     if (sortierung === 'nutzung') {
       return b.nutzungsanzahl - a.nutzungsanzahl;
     } else if (sortierung === 'bewertung') {
-      const summeA = Object.values(a.bewertungen).reduce((sum, val) => sum + val, 0);
-      const summeB = Object.values(b.bewertungen).reduce((sum, val) => sum + val, 0);
+      const summeA = Object.values(a.bewertungen || {}).reduce((sum, val) => sum + val, 0);
+      const summeB = Object.values(b.bewertungen || {}).reduce((sum, val) => sum + val, 0);
       return summeB - summeA;
     } else {
       return b.erstelltAm.seconds - a.erstelltAm.seconds;
@@ -1138,12 +1138,12 @@ export default function Home() {
               {/* Metadata */}
               <div style={{ marginBottom: '1rem' }}>
                 {/* Plattformen & Modelle */}
-                {Object.keys(prompt.plattformenUndModelle).length > 0 && (
+                {Object.keys(prompt.plattformenUndModelle || {}).length > 0 && (
                   <div style={{ marginBottom: '0.5rem' }}>
                     <strong style={{ fontSize: '0.9rem', marginRight: '0.5rem' }}>
                       Plattformen & Modelle:
                     </strong>
-                    {Object.entries(prompt.plattformenUndModelle).map(([plattform, modelle]) => (
+                    {Object.entries(prompt.plattformenUndModelle || {}).map(([plattform, modelle]) => (
                       <div key={plattform} style={{ marginBottom: '0.5rem' }}>
                         <span style={{
                           display: 'inline-block',
@@ -1178,12 +1178,12 @@ export default function Home() {
                 )}
 
                 {/* Output-Formate */}
-                {prompt.outputFormate.length > 0 && (
+                {(prompt.outputFormate || []).length > 0 && (
                   <div style={{ marginBottom: '0.5rem' }}>
                     <strong style={{ fontSize: '0.9rem', marginRight: '0.5rem' }}>
                       Formate:
                     </strong>
-                    {prompt.outputFormate.map(f => (
+                    {(prompt.outputFormate || []).map(f => (
                       <span key={f} style={{
                         display: 'inline-block',
                         padding: '0.25rem 0.75rem',
@@ -1201,12 +1201,12 @@ export default function Home() {
                 )}
 
                 {/* Anwendungsfälle */}
-                {prompt.anwendungsfaelle.length > 0 && (
+                {(prompt.anwendungsfaelle || []).length > 0 && (
                   <div style={{ marginBottom: '0.5rem' }}>
                     <strong style={{ fontSize: '0.9rem', marginRight: '0.5rem' }}>
                       Anwendung:
                     </strong>
-                    {prompt.anwendungsfaelle.map(a => (
+                    {(prompt.anwendungsfaelle || []).map(a => (
                       <span key={a} style={{
                         display: 'inline-block',
                         padding: '0.25rem 0.75rem',
@@ -1224,12 +1224,12 @@ export default function Home() {
                 )}
 
                 {/* Tags */}
-                {prompt.tags.length > 0 && (
+                {(prompt.tags || []).length > 0 && (
                   <div>
                     <strong style={{ fontSize: '0.9rem', marginRight: '0.5rem' }}>
                       Tags:
                     </strong>
-                    {prompt.tags.map((tag, i) => (
+                    {(prompt.tags || []).map((tag, i) => (
                       <span key={i} style={{
                         display: 'inline-block',
                         padding: '0.25rem 0.75rem',
@@ -1288,11 +1288,11 @@ export default function Home() {
                         alignItems: 'center',
                         gap: '0.25rem'
                       }}
-                      title={`${emoji} ${prompt.bewertungen[emoji] || 0}`}
+                      title={`${emoji} ${(prompt.bewertungen || {})[emoji] || 0}`}
                     >
                       {emoji}
                       <span style={{ fontSize: '0.85rem', color: 'var(--gray-medium)' }}>
-                        {prompt.bewertungen[emoji] || 0}
+                        {(prompt.bewertungen || {})[emoji] || 0}
                       </span>
                     </button>
                   ))}
