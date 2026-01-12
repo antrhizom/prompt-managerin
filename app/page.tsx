@@ -893,7 +893,7 @@ export default function Home() {
                   />
                 </div>
 
-                {/* Wenn Name automatisch geladen: Nur Bestätigung zeigen */}
+                {/* FALL 1: Name wurde automatisch geladen → Grüne Bestätigungs-Box */}
                 {username && userCode.length >= 6 ? (
                   <div style={{ marginBottom: '1.5rem' }}>
                     <div style={{ 
@@ -930,8 +930,8 @@ export default function Home() {
                       </button>
                     </div>
                   </div>
-                ) : (
-                  /* Wenn kein Name geladen: Input-Feld zeigen */
+                ) : userCode.length >= 6 ? (
+                  /* FALL 2: Code eingegeben, aber Name nicht geladen → Input-Feld zeigen */
                   <div style={{ marginBottom: '1.5rem' }}>
                     <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>
                       Dein Name:
@@ -941,6 +941,7 @@ export default function Home() {
                       value={username}
                       onChange={(e) => setUsername(e.target.value)}
                       placeholder="z.B. Anna Schmidt"
+                      autoFocus
                       style={{
                         width: '100%',
                         padding: '0.75rem',
@@ -951,13 +952,12 @@ export default function Home() {
                       }}
                       onKeyPress={(e) => e.key === 'Enter' && username && userCode && handleLoginAbschliessen()}
                     />
-                    {userCode.length >= 6 && !username && (
-                      <div style={{ fontSize: '0.85rem', color: 'var(--orange)', marginTop: '0.5rem' }}>
-                        ℹ️ Neuer Code - bitte Namen eingeben
-                      </div>
-                    )}
+                    <div style={{ fontSize: '0.85rem', color: 'var(--orange)', marginTop: '0.5rem' }}>
+                      ℹ️ Neuer Code - bitte Namen eingeben
+                    </div>
                   </div>
-                )}
+                ) : null /* FALL 3: Code noch nicht eingegeben (< 6 Zeichen) → NICHTS zeigen */
+                }
 
                 <button
                   onClick={handleLoginAbschliessen}
