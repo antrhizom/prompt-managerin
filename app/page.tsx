@@ -713,8 +713,8 @@ export default function Home() {
     const anwendungMatch = filterAnwendungsfall === '' || 
       (prompt.anwendungsfaelle || []).includes(filterAnwendungsfall) ||
       // Wenn Hauptkategorie gefiltert wird, auch Unterkategorien matchen
-      (prompt.anwendungsfaelle || []).some(anw => {
-        for (const [hauptkat, unterkat] of Object.entries(ANWENDUNGSFAELLE)) {
+      (prompt.anwendungsfaelle || []).some((anw: string) => {
+        for (const [hauptkat, unterkat] of Object.entries(ANWENDUNGSFAELLE) as [string, string[]][]) {
           if (hauptkat === filterAnwendungsfall && unterkat.includes(anw)) {
             return true;
           }
