@@ -678,24 +678,49 @@ export default function AdminDashboard() {
             <h2 style={{ fontSize: '1.5rem', marginBottom: '1.5rem', color: 'var(--dark-blue)' }}>
               Top 5 Beliebteste Prompts (Bewertungen)
             </h2>
+            <p style={{ 
+              fontSize: '0.9rem', 
+              color: 'var(--gray-dark)', 
+              marginBottom: '1rem',
+              background: 'var(--gray-light)',
+              padding: '0.75rem',
+              borderRadius: '0.5rem'
+            }}>
+              💡 <strong>Tipp:</strong> Klicke auf einen Prompt, um ihn auf der Startseite zu finden.
+            </p>
             <div style={{ display: 'grid', gap: '1rem' }}>
               {beliebtestePrompts.map((prompt, index) => {
                 const gesamtBewertung = Object.values(prompt.bewertungen || {}).reduce((s, v) => s + v, 0);
                 return (
-                  <div key={prompt.id} style={{
-                    padding: '1rem',
-                    background: 'var(--light-blue)',
-                    borderRadius: '0.5rem',
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center'
-                  }}>
+                  <Link
+                    key={prompt.id}
+                    href={`/?suche=${encodeURIComponent(prompt.titel)}`}
+                    style={{
+                      padding: '1rem',
+                      background: 'var(--light-blue)',
+                      borderRadius: '0.5rem',
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
+                      textDecoration: 'none',
+                      cursor: 'pointer',
+                      transition: 'all 0.2s'
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.transform = 'translateY(-2px)';
+                      e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.transform = 'translateY(0)';
+                      e.currentTarget.style.boxShadow = 'none';
+                    }}
+                  >
                     <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', flex: 1 }}>
                       <span style={{ fontSize: '1.5rem' }}>
                         {index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : `#${index + 1}`}
                       </span>
                       <div style={{ flex: 1 }}>
-                        <div style={{ fontWeight: '600', fontSize: '1rem' }}>
+                        <div style={{ fontWeight: '600', fontSize: '1rem', color: 'var(--dark-blue)' }}>
                           {prompt.titel}
                         </div>
                         <div style={{ fontSize: '0.85rem', color: 'var(--gray-medium)', marginTop: '0.25rem' }}>
@@ -713,7 +738,7 @@ export default function AdminDashboard() {
                     }}>
                       ❤️ {gesamtBewertung}
                     </div>
-                  </div>
+                  </Link>
                 );
               })}
             </div>
@@ -729,22 +754,47 @@ export default function AdminDashboard() {
             <h2 style={{ fontSize: '1.5rem', marginBottom: '1.5rem', color: 'var(--dark-blue)' }}>
               Top 5 Meist Genutzte Prompts (Kopiert)
             </h2>
+            <p style={{ 
+              fontSize: '0.9rem', 
+              color: 'var(--gray-dark)', 
+              marginBottom: '1rem',
+              background: 'var(--gray-light)',
+              padding: '0.75rem',
+              borderRadius: '0.5rem'
+            }}>
+              💡 <strong>Tipp:</strong> Klicke auf einen Prompt, um ihn auf der Startseite zu finden.
+            </p>
             <div style={{ display: 'grid', gap: '1rem' }}>
               {meistGenutzt.map((prompt, index) => (
-                <div key={prompt.id} style={{
-                  padding: '1rem',
-                  background: '#ecfdf5',
-                  borderRadius: '0.5rem',
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'center'
-                }}>
+                <Link
+                  key={prompt.id}
+                  href={`/?suche=${encodeURIComponent(prompt.titel)}`}
+                  style={{
+                    padding: '1rem',
+                    background: '#ecfdf5',
+                    borderRadius: '0.5rem',
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    textDecoration: 'none',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.transform = 'translateY(-2px)';
+                    e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.transform = 'translateY(0)';
+                    e.currentTarget.style.boxShadow = 'none';
+                  }}
+                >
                   <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', flex: 1 }}>
                     <span style={{ fontSize: '1.5rem' }}>
                       {index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : `#${index + 1}`}
                     </span>
                     <div>
-                      <div style={{ fontWeight: '600', fontSize: '1rem' }}>
+                      <div style={{ fontWeight: '600', fontSize: '1rem', color: 'var(--dark-blue)' }}>
                         {prompt.titel}
                       </div>
                     </div>
@@ -756,7 +806,7 @@ export default function AdminDashboard() {
                   }}>
                     📋 {prompt.nutzungsanzahl}×
                   </div>
-                </div>
+                </Link>
               ))}
             </div>
           </div>

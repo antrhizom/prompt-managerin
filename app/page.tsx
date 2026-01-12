@@ -57,6 +57,11 @@ interface Prompt {
     grund: string;
     timestamp: string;
   }>;
+  // Prozessbeschreibung (NEU)
+  problemausgangslage?: string;
+  loesungsbeschreibung?: string;
+  schwierigkeiten?: string;
+  endproduktLink?: string;
 }
 
 // ============================================
@@ -233,6 +238,12 @@ export default function Home() {
   const [neueTags, setNeueTags] = useState('');
   const [neuerKommentar, setNeuerKommentar] = useState('');
   const [neueRolle, setNeueRolle] = useState('');
+  
+  // Prozessbeschreibung State (NEU)
+  const [neueProblemausgangslage, setNeueProblemausgangslage] = useState('');
+  const [neueLoesungsbeschreibung, setNeueLoesungsbeschreibung] = useState('');
+  const [neueSchwierigkeiten, setNeueSchwierigkeiten] = useState('');
+  const [neuerEndproduktLink, setNeuerEndproduktLink] = useState('');
 
   // Filter & Search State
   const [suchbegriff, setSuchbegriff] = useState('');
@@ -373,6 +384,7 @@ export default function Home() {
       const plattformParam = params.get('plattform');
       const formatParam = params.get('format');
       const anwendungsfallParam = params.get('anwendungsfall');
+      const sucheParam = params.get('suche');
       
       // Filter setzen wenn Parameter vorhanden
       if (rolleParam) {
@@ -387,9 +399,12 @@ export default function Home() {
       if (anwendungsfallParam) {
         setFilterAnwendungsfall(decodeURIComponent(anwendungsfallParam));
       }
+      if (sucheParam) {
+        setSuchbegriff(decodeURIComponent(sucheParam));
+      }
       
       // Scrolle zu den Prompts wenn irgendein Filter gesetzt wurde
-      if (rolleParam || plattformParam || formatParam || anwendungsfallParam) {
+      if (rolleParam || plattformParam || formatParam || anwendungsfallParam || sucheParam) {
         setTimeout(() => {
           document.getElementById('prompts-liste')?.scrollIntoView({ behavior: 'smooth' });
         }, 300);
@@ -477,6 +492,11 @@ export default function Home() {
     setNeueTags(prompt.tags?.join(', ') || '');
     setNeuerKommentar(prompt.kommentar);
     setNeueRolle(prompt.erstelltVonRolle || '');
+    // Prozessbeschreibung laden (NEU)
+    setNeueProblemausgangslage(prompt.problemausgangslage || '');
+    setNeueLoesungsbeschreibung(prompt.loesungsbeschreibung || '');
+    setNeueSchwierigkeiten(prompt.schwierigkeiten || '');
+    setNeuerEndproduktLink(prompt.endproduktLink || '');
     setShowCreateForm(true);
 
     // Scroll to form
@@ -494,6 +514,11 @@ export default function Home() {
     setNeueTags('');
     setNeuerKommentar('');
     setNeueRolle('');
+    // Prozessbeschreibung zurücksetzen
+    setNeueProblemausgangslage('');
+    setNeueLoesungsbeschreibung('');
+    setNeueSchwierigkeiten('');
+    setNeuerEndproduktLink('');
   };
 
   const handlePromptAktualisieren = async () => {
@@ -528,7 +553,12 @@ export default function Home() {
         outputFormate: neueOutputFormate,
         anwendungsfaelle: neueAnwendungsfaelle,
         tags: neueTags.split(',').map(t => t.trim()).filter(t => t),
-        kommentar: neuerKommentar.trim()
+        kommentar: neuerKommentar.trim(),
+        // Prozessbeschreibung (NEU)
+        problemausgangslage: neueProblemausgangslage.trim(),
+        loesungsbeschreibung: neueLoesungsbeschreibung.trim(),
+        schwierigkeiten: neueSchwierigkeiten.trim(),
+        endproduktLink: neuerEndproduktLink.trim()
       });
 
       handleBearbeitenAbbrechen();
@@ -584,7 +614,12 @@ export default function Home() {
         nutzungsanzahl: 0,
         erstelltVon: userCode,
         erstelltVonRolle: neueRolle,
-        erstelltAm: serverTimestamp()
+        erstelltAm: serverTimestamp(),
+        // Prozessbeschreibung (NEU)
+        ...(neueProblemausgangslage.trim() && { problemausgangslage: neueProblemausgangslage.trim() }),
+        ...(neueLoesungsbeschreibung.trim() && { loesungsbeschreibung: neueLoesungsbeschreibung.trim() }),
+        ...(neueSchwierigkeiten.trim() && { schwierigkeiten: neueSchwierigkeiten.trim() }),
+        ...(neuerEndproduktLink.trim() && { endproduktLink: neuerEndproduktLink.trim() })
       });
 
       handleBearbeitenAbbrechen(); // Nutze die gleiche Reset-Funktion
@@ -1773,6 +1808,115 @@ export default function Home() {
             />
           </div>
 
+          {/* Prozessbeschreibung (NEU) */}
+          <div style={{
+            marginBottom: '1.5rem',
+            padding: '1.5rem',
+            background: 'linear-gradient(135deg, #fef3c7 0%, #fde68a 100%)',
+            borderRadius: '1rem',
+            border: '2px solid #fbbf24'
+          }}>
+            <h3 style={{ fontSize: '1.1rem', marginBottom: '1rem', color: '#92400e' }}>
+              📝 Prozessbeschreibung <span style={{ fontSize: '0.85rem', fontWeight: 'normal', color: '#78350f' }}>(optional aber empfohlen!)</span>
+            </h3>
+            <div style={{ 
+              fontSize: '0.9rem',
+              color: '#78350f',
+              lineHeight: '1.6',
+              marginBottom: '1rem',
+              background: 'rgba(255,255,255,0.7)',
+              padding: '0.75rem',
+              borderRadius: '0.5rem'
+            }}>
+              <strong>💡 Warum ist das wichtig?</strong> Teile deine Erfahrungen mit anderen! 
+              Beschreibe das Problem, deine Lösung, wo es schwierig war und zeige dein Endprodukt. 
+              So können andere von deinen Learnings profitieren.
+            </div>
+
+            {/* Problemausgangslage */}
+            <div style={{ marginBottom: '1rem' }}>
+              <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500', color: '#92400e' }}>
+                🎯 Problemausgangslage
+              </label>
+              <textarea
+                value={neueProblemausgangslage}
+                onChange={(e) => setNeueProblemausgangslage(e.target.value)}
+                placeholder="z.B. 'Schüler hatten Schwierigkeiten mit abstrakten Mathe-Konzepten' oder 'Wollte eine interaktive Präsentation für Elternabend erstellen'"
+                rows={2}
+                style={{
+                  width: '100%',
+                  padding: '0.75rem',
+                  border: '2px solid #fbbf24',
+                  borderRadius: '0.5rem',
+                  fontSize: '0.95rem',
+                  resize: 'vertical'
+                }}
+              />
+            </div>
+
+            {/* Lösungsbeschreibung */}
+            <div style={{ marginBottom: '1rem' }}>
+              <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500', color: '#92400e' }}>
+                ✅ Wie hast du das Problem gelöst?
+              </label>
+              <textarea
+                value={neueLoesungsbeschreibung}
+                onChange={(e) => setNeueLoesungsbeschreibung(e.target.value)}
+                placeholder="z.B. 'Habe ChatGPT gebeten, Schritt-für-Schritt Erklärungen mit Alltagsbeispielen zu erstellen' oder 'Verwendete Claude um interaktive HTML-Slides zu generieren'"
+                rows={3}
+                style={{
+                  width: '100%',
+                  padding: '0.75rem',
+                  border: '2px solid #fbbf24',
+                  borderRadius: '0.5rem',
+                  fontSize: '0.95rem',
+                  resize: 'vertical'
+                }}
+              />
+            </div>
+
+            {/* Schwierigkeiten */}
+            <div style={{ marginBottom: '1rem' }}>
+              <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500', color: '#92400e' }}>
+                ⚠️ Wo lagen die Schwierigkeiten?
+              </label>
+              <textarea
+                value={neueSchwierigkeiten}
+                onChange={(e) => setNeueSchwierigkeiten(e.target.value)}
+                placeholder="z.B. 'Musste den Prompt 3x anpassen bis das Niveau stimmte' oder 'Zuerst waren die Beispiele zu komplex, dann zu einfach'"
+                rows={2}
+                style={{
+                  width: '100%',
+                  padding: '0.75rem',
+                  border: '2px solid #fbbf24',
+                  borderRadius: '0.5rem',
+                  fontSize: '0.95rem',
+                  resize: 'vertical'
+                }}
+              />
+            </div>
+
+            {/* Endprodukt Link */}
+            <div>
+              <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500', color: '#92400e' }}>
+                🔗 Link zum Endprodukt
+              </label>
+              <input
+                type="url"
+                value={neuerEndproduktLink}
+                onChange={(e) => setNeuerEndproduktLink(e.target.value)}
+                placeholder="z.B. 'https://docs.google.com/...' oder 'https://github.com/...'"
+                style={{
+                  width: '100%',
+                  padding: '0.75rem',
+                  border: '2px solid #fbbf24',
+                  borderRadius: '0.5rem',
+                  fontSize: '0.95rem'
+                }}
+              />
+            </div>
+          </div>
+
           <button
             onClick={editingPromptId ? handlePromptAktualisieren : handlePromptHinzufuegen}
             style={{
@@ -2216,6 +2360,69 @@ export default function Home() {
                   <p style={{ marginTop: '0.25rem', fontSize: '0.95rem' }}>
                     {prompt.kommentar}
                   </p>
+                </div>
+              )}
+
+              {/* Prozessbeschreibung (NEU) */}
+              {(prompt.problemausgangslage || prompt.loesungsbeschreibung || prompt.schwierigkeiten || prompt.endproduktLink) && (
+                <div style={{
+                  background: 'linear-gradient(135deg, #fef3c7 0%, #fde68a 100%)',
+                  padding: '1rem',
+                  borderRadius: '0.75rem',
+                  marginBottom: '1rem',
+                  border: '2px solid #fbbf24'
+                }}>
+                  <strong style={{ fontSize: '1rem', color: '#92400e', display: 'block', marginBottom: '0.75rem' }}>
+                    📝 Prozessbeschreibung
+                  </strong>
+
+                  {prompt.problemausgangslage && (
+                    <div style={{ marginBottom: '0.75rem' }}>
+                      <strong style={{ fontSize: '0.85rem', color: '#92400e' }}>🎯 Problem:</strong>
+                      <p style={{ marginTop: '0.25rem', fontSize: '0.9rem', color: '#78350f' }}>
+                        {prompt.problemausgangslage}
+                      </p>
+                    </div>
+                  )}
+
+                  {prompt.loesungsbeschreibung && (
+                    <div style={{ marginBottom: '0.75rem' }}>
+                      <strong style={{ fontSize: '0.85rem', color: '#92400e' }}>✅ Lösung:</strong>
+                      <p style={{ marginTop: '0.25rem', fontSize: '0.9rem', color: '#78350f' }}>
+                        {prompt.loesungsbeschreibung}
+                      </p>
+                    </div>
+                  )}
+
+                  {prompt.schwierigkeiten && (
+                    <div style={{ marginBottom: '0.75rem' }}>
+                      <strong style={{ fontSize: '0.85rem', color: '#92400e' }}>⚠️ Schwierigkeiten:</strong>
+                      <p style={{ marginTop: '0.25rem', fontSize: '0.9rem', color: '#78350f' }}>
+                        {prompt.schwierigkeiten}
+                      </p>
+                    </div>
+                  )}
+
+                  {prompt.endproduktLink && (
+                    <div>
+                      <strong style={{ fontSize: '0.85rem', color: '#92400e' }}>🔗 Endprodukt:</strong>
+                      <a 
+                        href={prompt.endproduktLink}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        style={{
+                          display: 'inline-block',
+                          marginTop: '0.25rem',
+                          color: '#1d4ed8',
+                          textDecoration: 'none',
+                          fontSize: '0.9rem',
+                          wordBreak: 'break-all'
+                        }}
+                      >
+                        {prompt.endproduktLink} →
+                      </a>
+                    </div>
+                  )}
                 </div>
               )}
 
