@@ -35,14 +35,15 @@ export default function AdminDashboard() {
     const q = query(collection(db, 'prompts'));
     
     const unsubscribe = onSnapshot(q, (snapshot) => {
-      const promptsData = snapshot.docs
-        .map(doc => ({
-          id: doc.id,
-          ...doc.data()
-        }))
-        .filter(prompt => !prompt.deleted) as Prompt[]; // ← Filtere gelöschte Prompts!
+      const allPrompts = snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      })) as Prompt[];
       
-      setPrompts(promptsData);
+      // Filtere gelöschte Prompts
+      const activePrompts = allPrompts.filter(prompt => !prompt.deleted);
+      
+      setPrompts(activePrompts);
       setLoading(false);
     }, (error) => {
       console.error('Firebase Fehler:', error);
