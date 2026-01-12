@@ -1,0 +1,114 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // ============================================
+    // PROMPTS COLLECTION
+    // ============================================
+    match /prompts/{promptId} {
+      
+      // ✅ LESEN: Alle dürfen Prompts lesen (öffentliche App)
+      allow read: if true;
+      
+      // ✅ ERSTELLEN: Nur mit gültigen Pflichtfeldern
+      allow create: if 
+        // Pflichtfelder müssen vorhanden sein
+        request.resource.data.keys().hasAll([
+          'titel',
+          'beschreibung', 
+          'promptText',
+          'plattformenUndModelle',
+          'outputFormate',
+          'anwendungsfaelle',
+          'tags',
+          'kommentar',
+          'bewertungen',
+          'nutzungsanzahl',
+          'erstelltVon',
+          'erstelltAm'
+        ]) &&
+        
+        // Datentyp-Validierung
+        request.resource.data.titel is string &&
+        request.resource.data.titel.size() > 0 &&
+        request.resource.data.titel.size() <= 200 &&
+        
+        request.resource.data.beschreibung is string &&
+        request.resource.data.beschreibung.size() <= 500 &&
+        
+        request.resource.data.promptText is string &&
+        request.resource.data.promptText.size() > 0 &&
+        request.resource.data.promptText.size() <= 10000 &&
+        
+        request.resource.data.plattformenUndModelle is map &&
+        request.resource.data.plattformenUndModelle.size() > 0 &&
+        
+        request.resource.data.outputFormate is list &&
+        request.resource.data.outputFormate.size() > 0 &&
+        
+        request.resource.data.anwendungsfaelle is list &&
+        request.resource.data.anwendungsfaelle.size() > 0 &&
+        
+        request.resource.data.tags is list &&
+        
+        request.resource.data.kommentar is string &&
+        request.resource.data.kommentar.size() <= 500 &&
+        
+        request.resource.data.bewertungen is map &&
+        
+        request.resource.data.nutzungsanzahl is int &&
+        request.resource.data.nutzungsanzahl >= 0 &&
+        
+        request.resource.data.erstelltVon is string &&
+        request.resource.data.erstelltVon.size() >= 6 &&
+        request.resource.data.erstelltVon.size() <= 20 &&
+        
+        request.resource.data.erstelltAm is timestamp;
+      
+      // ✅ BEARBEITEN: Mehrere Fälle
+      allow update: if 
+        // erstelltVon und erstelltAm dürfen NICHT geändert werden
+        request.resource.data.erstelltVon == resource.data.erstelltVon &&
+        request.resource.data.erstelltAm == resource.data.erstelltAm;
+      
+      // ✅ LÖSCHEN: Nur durch Admin (in Firebase Console)
+      // WICHTIG: Da kein Firebase Auth verwendet wird, können Nutzer 
+      // nur "Soft Delete" (deleted=true), nicht direkt löschen.
+      // Admin kann manuell in Firebase Console löschen.
+      allow delete: if false;
+    }
+    
+    // ============================================
+    // USERS COLLECTION
+    // ============================================
+    match /users/{userId} {
+      // ✅ LESEN: Jeder kann User-Namen lesen
+      allow read: if true;
+      
+      // ✅ ERSTELLEN: Jeder kann User erstellen
+      allow create: if 
+        request.resource.data.keys().hasAll(['username', 'createdAt']) &&
+        request.resource.data.username is string &&
+        request.resource.data.username.size() > 0 &&
+        request.resource.data.username.size() <= 100 &&
+        request.resource.data.createdAt is timestamp;
+      
+      // ✅ BEARBEITEN: Nur username darf geändert werden
+      allow update: if 
+        request.resource.data.diff(resource.data).affectedKeys().hasOnly(['username']) &&
+        request.resource.data.username is string &&
+        request.resource.data.username.size() > 0 &&
+        request.resource.data.username.size() <= 100;
+      
+      // ❌ LÖSCHEN: Verboten
+      allow delete: if false;
+    }
+    
+    // ============================================
+    // ALLE ANDEREN COLLECTIONS: Verbieten
+    // ============================================
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
