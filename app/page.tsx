@@ -42,7 +42,7 @@ interface Prompt {
   outputFormate: string[];
   anwendungsfaelle: string[];
   tags: string[];
-  kommentar: string;
+  link: string;
   bewertungen: { [emoji: string]: number };
   nutzungsanzahl: number;
   erstelltVon: string;
@@ -187,19 +187,47 @@ const OUTPUT_FORMATE = [
 ];
 
 const ANWENDUNGSFAELLE = {
-  'Interaktive Internetseiten': [],
-  'Design Office Programme': [],
-  'Lerndossier Text': [],
-  'Projektmanagement': [],
-  'Administration': [],
-  'Prüfungen': [],
-  'KI-Assistenten': [],
+  'Interaktive Internetseiten': [
+    'Formative Lernkontrolle',
+    'Summative Lernkontrolle',
+    'Lernfeedback',
+    'Visualisierung von Lerninhalten'
+  ],
+  'Design Office Programme': [
+    'Word',
+    'Excel',
+    'Powerpoint'
+  ],
+  'Lerndossier Text': [
+    'Aufgabenblatt',
+    'Übungsblatt'
+  ],
+  'Projektmanagement': [
+    'Aktivitätsdossier',
+    'Aufgabenübersicht'
+  ],
+  'Administration': [
+    'E-Mail-Texte',
+    'Informationsbroschüren',
+    'Flyer'
+  ],
+  'Prüfungen': [
+    'Fragenvielfalt',
+    'Fragenarchiv'
+  ],
+  'KI-Assistenten': [
+    'Custom Prompt',
+    'Lern-Bot',
+    'Gesprächsbot',
+    'Organisationsbot'
+  ],
   'Fotos': [
     'Photoshop',
     'Fotoreportagen'
   ],
   'Grafik und Infografik/Diagramme': [
-    'HTML-Grafik'
+    'HTML-Grafik',
+    'Bild-Grafik'
   ],
   'Social Media Inhalte': [
     'Reel',
@@ -236,7 +264,7 @@ export default function Home() {
   const [neueOutputFormate, setNeueOutputFormate] = useState<string[]>([]);
   const [neueAnwendungsfaelle, setNeueAnwendungsfaelle] = useState<string[]>([]);
   const [neueTags, setNeueTags] = useState('');
-  const [neuerKommentar, setNeuerKommentar] = useState('');
+  const [neuerLink, setNeuerLink] = useState('');
   const [neueRolle, setNeueRolle] = useState('');
   
   // Prozessbeschreibung State (NEU)
@@ -490,7 +518,7 @@ export default function Home() {
     setNeueOutputFormate(prompt.outputFormate || []);
     setNeueAnwendungsfaelle(prompt.anwendungsfaelle || []);
     setNeueTags(prompt.tags?.join(', ') || '');
-    setNeuerKommentar(prompt.kommentar);
+    setNeuerLink(prompt.link || '');
     setNeueRolle(prompt.erstelltVonRolle || '');
     // Prozessbeschreibung laden (NEU)
     setNeueProblemausgangslage(prompt.problemausgangslage || '');
@@ -512,7 +540,7 @@ export default function Home() {
     setNeueOutputFormate([]);
     setNeueAnwendungsfaelle([]);
     setNeueTags('');
-    setNeuerKommentar('');
+    setNeuerLink('');
     setNeueRolle('');
     // Prozessbeschreibung zurücksetzen
     setNeueProblemausgangslage('');
@@ -553,7 +581,7 @@ export default function Home() {
         outputFormate: neueOutputFormate,
         anwendungsfaelle: neueAnwendungsfaelle,
         tags: neueTags.split(',').map(t => t.trim()).filter(t => t),
-        kommentar: neuerKommentar.trim(),
+        link: neuerLink.trim(),
         // Prozessbeschreibung (NEU)
         problemausgangslage: neueProblemausgangslage.trim(),
         loesungsbeschreibung: neueLoesungsbeschreibung.trim(),
@@ -609,7 +637,7 @@ export default function Home() {
         outputFormate: neueOutputFormate,
         anwendungsfaelle: neueAnwendungsfaelle,
         tags: neueTags.split(',').map(t => t.trim()).filter(t => t),
-        kommentar: neuerKommentar.trim(),
+        link: neuerLink.trim(),
         bewertungen: { '👍': 0, '❤️': 0, '🔥': 0, '⭐': 0, '💡': 0 },
         nutzungsanzahl: 0,
         erstelltVon: userCode,
@@ -1787,23 +1815,22 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Kommentar */}
+          {/* Link zum Beispiel/Resultat */}
           <div style={{ marginBottom: '1.5rem' }}>
             <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>
-              Kommentar <span style={{ fontSize: '0.85rem', color: 'var(--gray-medium)' }}>(optional - z.B. Tipps zur Nutzung)</span>
+              🔗 Link <span style={{ fontSize: '0.85rem', color: 'var(--gray-medium)' }}>(optional - z.B. Link zu Beispiel, Resultat oder Demo)</span>
             </label>
-            <textarea
-              value={neuerKommentar}
-              onChange={(e) => setNeuerKommentar(e.target.value)}
-              placeholder="z.B. 'Funktioniert besonders gut für Textaufgaben bis 8. Klasse' oder 'Am besten mehrmals durchlaufen lassen'"
-              rows={3}
+            <input
+              type="url"
+              value={neuerLink}
+              onChange={(e) => setNeuerLink(e.target.value)}
+              placeholder="z.B. 'https://docs.google.com/...' oder 'https://github.com/...'"
               style={{
                 width: '100%',
                 padding: '0.75rem',
                 border: '2px solid var(--gray-light)',
                 borderRadius: '0.5rem',
-                fontSize: '1rem',
-                resize: 'vertical'
+                fontSize: '1rem'
               }}
             />
           </div>
@@ -2348,18 +2375,31 @@ export default function Home() {
               </div>
 
               {/* Kommentar */}
-              {prompt.kommentar && (
+              {/* Link */}
+              {prompt.link && (
                 <div style={{
-                  background: '#fffbeb',
+                  background: '#eff6ff',
                   padding: '0.75rem',
                   borderRadius: '0.5rem',
                   marginBottom: '1rem',
-                  borderLeft: '3px solid var(--orange)'
+                  borderLeft: '3px solid #3b82f6'
                 }}>
-                  <strong style={{ fontSize: '0.9rem' }}>💬 Kommentar:</strong>
-                  <p style={{ marginTop: '0.25rem', fontSize: '0.95rem' }}>
-                    {prompt.kommentar}
-                  </p>
+                  <strong style={{ fontSize: '0.9rem' }}>🔗 Link:</strong>
+                  <a
+                    href={prompt.link}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{
+                      display: 'block',
+                      marginTop: '0.25rem',
+                      fontSize: '0.95rem',
+                      color: '#1d4ed8',
+                      textDecoration: 'none',
+                      wordBreak: 'break-all'
+                    }}
+                  >
+                    {prompt.link} →
+                  </a>
                 </div>
               )}
 

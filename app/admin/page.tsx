@@ -16,19 +16,40 @@ const ALLE_ROLLEN = [
 ];
 
 const ALLE_ANWENDUNGSFAELLE = [
-  'Interaktive Internetseiten',
-  'Design Office Programme',
-  'Lerndossier Text',
-  'Projektmanagement',
-  'Administration',
-  'Prüfungen',
-  'KI-Assistenten',
-  // Unterkategorien von "Fotos"
+  // Interaktive Internetseiten
+  'Formative Lernkontrolle',
+  'Summative Lernkontrolle',
+  'Lernfeedback',
+  'Visualisierung von Lerninhalten',
+  // Design Office Programme
+  'Word',
+  'Excel',
+  'Powerpoint',
+  // Lerndossier Text
+  'Aufgabenblatt',
+  'Übungsblatt',
+  // Projektmanagement
+  'Aktivitätsdossier',
+  'Aufgabenübersicht',
+  // Administration
+  'E-Mail-Texte',
+  'Informationsbroschüren',
+  'Flyer',
+  // Prüfungen
+  'Fragenvielfalt',
+  'Fragenarchiv',
+  // KI-Assistenten
+  'Custom Prompt',
+  'Lern-Bot',
+  'Gesprächsbot',
+  'Organisationsbot',
+  // Fotos
   'Photoshop',
   'Fotoreportagen',
-  // Unterkategorie von "Grafik und Infografik/Diagramme"
+  // Grafik und Infografik/Diagramme
   'HTML-Grafik',
-  // Unterkategorien von "Social Media Inhalte"
+  'Bild-Grafik',
+  // Social Media Inhalte
   'Reel',
   'Gif',
   'Memes'
@@ -40,6 +61,7 @@ interface Prompt {
   plattformenUndModelle: { [plattform: string]: string[] };
   outputFormate: string[];
   anwendungsfaelle: string[];
+  tags?: string[];
   bewertungen: { [emoji: string]: number };
   nutzungsanzahl: number;
   erstelltVon: string;
@@ -181,6 +203,20 @@ export default function AdminDashboard() {
   const meistGenutzt = [...prompts]
     .sort((a, b) => (b.nutzungsanzahl || 0) - (a.nutzungsanzahl || 0))
     .slice(0, 5);
+
+  // Häufigste Hashtags (Top 15)
+  const hashtagZaehler: { [tag: string]: number } = {};
+  prompts.forEach(p => {
+    (p.tags || []).forEach((tag: string) => {
+      if (tag && tag.trim()) {
+        const cleanTag = tag.trim().toLowerCase();
+        hashtagZaehler[cleanTag] = (hashtagZaehler[cleanTag] || 0) + 1;
+      }
+    });
+  });
+  const topHashtags = Object.entries(hashtagZaehler)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 15);
 
   // ============================================
   // RENDER
@@ -538,6 +574,55 @@ export default function AdminDashboard() {
                   </div>
                   <div style={{ fontSize: '0.9rem', color: 'var(--gray-dark)' }}>
                     {modell}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Top 15 Häufigste Hashtags */}
+          <div style={{
+            background: 'white',
+            padding: '2rem',
+            borderRadius: '1rem',
+            boxShadow: '0 4px 6px rgba(0,0,0,0.1)'
+          }}>
+            <h2 style={{ fontSize: '1.5rem', marginBottom: '1.5rem', color: 'var(--dark-blue)' }}>
+              🏷️ Top 15 Häufigste Hashtags
+            </h2>
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))',
+              gap: '1rem'
+            }}>
+              {topHashtags.map(([tag, anzahl], index) => (
+                <div key={tag} style={{
+                  padding: '0.75rem',
+                  background: index < 3 ? 'linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%)' : 'var(--gray-light)',
+                  borderRadius: '0.5rem',
+                  borderLeft: `4px solid ${index < 3 ? '#d97706' : 'var(--teal)'}`,
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center'
+                }}>
+                  <div style={{
+                    fontSize: '0.9rem',
+                    color: index < 3 ? '#78350f' : 'var(--gray-dark)',
+                    fontWeight: index < 3 ? '600' : '500',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    whiteSpace: 'nowrap'
+                  }}>
+                    #{tag}
+                  </div>
+                  <div style={{
+                    fontSize: '1.25rem',
+                    fontWeight: '700',
+                    color: index < 3 ? '#92400e' : 'var(--teal)',
+                    marginLeft: '0.5rem',
+                    flexShrink: 0
+                  }}>
+                    {anzahl}
                   </div>
                 </div>
               ))}
