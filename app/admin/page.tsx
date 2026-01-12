@@ -5,6 +5,35 @@ import Link from 'next/link';
 import { collection, onSnapshot, query } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 
+// Konstanten für ALLE Kategorien (auch wenn 0 Prompts)
+const ALLE_ROLLEN = [
+  '👨‍🏫 Lehrperson',
+  '🎓 Lernende Berufsschule',
+  '📚 Lernende Allgemein',
+  '🏛️ Lernende Gymnasium',
+  '🏢 Verwaltung',
+  '🔧 Sonstige'
+];
+
+const ALLE_ANWENDUNGSFAELLE = [
+  'Interaktive Internetseiten',
+  'Design Office Programme',
+  'Lerndossier Text',
+  'Projektmanagement',
+  'Administration',
+  'Prüfungen',
+  'KI-Assistenten',
+  // Unterkategorien von "Fotos"
+  'Photoshop',
+  'Fotoreportagen',
+  // Unterkategorie von "Grafik und Infografik/Diagramme"
+  'HTML-Grafik',
+  // Unterkategorien von "Social Media Inhalte"
+  'Reel',
+  'Gif',
+  'Memes'
+];
+
 interface Prompt {
   id: string;
   titel: string;
@@ -95,19 +124,39 @@ export default function AdminDashboard() {
     .sort((a, b) => b[1] - a[1])
     .slice(0, 10);
 
-  // Prompts pro Anwendungsfall
+  // Prompts pro Anwendungsfall (zeige ALLE neuen Kategorien, auch mit 0 Prompts)
   const promptsProAnwendungsfall: { [key: string]: number } = {};
+  // Initialisiere alle neuen Anwendungsfälle mit 0
+  ALLE_ANWENDUNGSFAELLE.forEach(fall => {
+    promptsProAnwendungsfall[fall] = 0;
+  });
+  // Zähle tatsächliche Prompts (auch alte Kategorien werden mitgezählt)
   prompts.forEach(p => {
     (p.anwendungsfaelle || []).forEach(fall => {
-      promptsProAnwendungsfall[fall] = (promptsProAnwendungsfall[fall] || 0) + 1;
+      if (promptsProAnwendungsfall[fall] !== undefined) {
+        promptsProAnwendungsfall[fall]++;
+      } else {
+        // Alte Kategorien die nicht in ALLE_ANWENDUNGSFAELLE sind
+        promptsProAnwendungsfall[fall] = (promptsProAnwendungsfall[fall] || 0) + 1;
+      }
     });
   });
 
-  // Prompts pro Rolle
+  // Prompts pro Rolle (zeige ALLE Rollen, auch mit 0 Prompts)
   const promptsProRolle: { [key: string]: number } = {};
+  // Initialisiere alle Rollen mit 0
+  ALLE_ROLLEN.forEach(rolle => {
+    promptsProRolle[rolle] = 0;
+  });
+  // Zähle tatsächliche Prompts
   prompts.forEach(p => {
     const rolle = p.erstelltVonRolle || '🔧 Sonstige';
-    promptsProRolle[rolle] = (promptsProRolle[rolle] || 0) + 1;
+    if (promptsProRolle[rolle] !== undefined) {
+      promptsProRolle[rolle]++;
+    } else {
+      // Falls eine Rolle in Daten existiert die nicht in ALLE_ROLLEN ist
+      promptsProRolle[rolle] = 1;
+    }
   });
 
   // Aktivste Nutzer (Top 5)
