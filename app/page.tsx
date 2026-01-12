@@ -154,6 +154,23 @@ const PLATTFORMEN_MIT_MODELLEN: { [key: string]: string[] } = {
   'DeepSeek': [
     'DeepSeek-V3.2',
     'DeepSeek-R1'
+  ],
+  'Manus': [
+    'Manus AI'
+  ],
+  'Kimi': [
+    'Kimi AI'
+  ],
+  '🎥 Video-Plattformen': [
+    'Synthesia.io',
+    'HeyGen',
+    'Krea',
+    'NotebookLM',
+    'Sonstige'
+  ],
+  '🎵 Audio-Plattformen': [
+    'ElevenLabs.io',
+    'Sonstige'
   ]
 };
 
@@ -165,29 +182,24 @@ const OUTPUT_FORMATE = [
 ];
 
 const ANWENDUNGSFAELLE = {
-  'Verstehen & Erfassen': [
-    'Texte vereinfachen', 'Zusammenfassen', 'Konzepte erklären', 
-    'Beispiele generieren', 'Analogien bilden'
+  'Interaktive Internetseiten': [],
+  'Design Office Programme': [],
+  'Lerndossier Text': [],
+  'Projektmanagement': [],
+  'Administration': [],
+  'Prüfungen': [],
+  'KI-Assistenten': [],
+  'Fotos': [
+    'Photoshop',
+    'Fotoreportagen'
   ],
-  'Üben & Anwenden': [
-    'Übungsaufgaben erstellen', 'Prüfungsvorbereitung', 'Lernkarten generieren', 
-    'Quiz erstellen', 'Selbsttest'
+  'Grafik und Infografik/Diagramme': [
+    'HTML-Grafik'
   ],
-  'Erstellen & Gestalten': [
-    'Präsentationen', 'Arbeitsblätter', 'Projekte planen', 
-    'Kreatives Schreiben', 'Visualisierungen'
-  ],
-  'Feedback & Reflexion': [
-    'Texte korrigieren', 'Feedback geben', 'Selbstreflexion', 
-    'Peer-Review', 'Verbesserungsvorschläge'
-  ],
-  'Organisation & Planung': [
-    'Lernpläne', 'Zeitmanagement', 'Zielsetzung', 
-    'Projektmanagement', 'Notizen strukturieren'
-  ],
-  'Recherche & Analyse': [
-    'Informationen suchen', 'Quellen bewerten', 'Daten analysieren', 
-    'Vergleichen', 'Argumentieren'
+  'Social Media Inhalte': [
+    'Reel',
+    'Gif',
+    'Memes'
   ]
 };
 
@@ -228,6 +240,7 @@ export default function Home() {
   const [filterOutputFormat, setFilterOutputFormat] = useState('');
   const [filterAnwendungsfall, setFilterAnwendungsfall] = useState('');
   const [filterTag, setFilterTag] = useState('');
+  const [filterRolle, setFilterRolle] = useState(''); // ← NEU: Filter nach Rolle
   const [sortierung, setSortierung] = useState<'nutzung' | 'bewertung' | 'aktuell'>('aktuell');
 
   // ============================================
@@ -349,6 +362,21 @@ export default function Home() {
   // ============================================
   // FIREBASE ECHTZEIT-UPDATES (Immer aktiv)
   // ============================================
+
+  // URL-Parameter lesen (z.B. ?rolle=Lehrperson vom Dashboard)
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      const rolleParam = params.get('rolle');
+      if (rolleParam) {
+        setFilterRolle(decodeURIComponent(rolleParam));
+        // Scrolle zu den Prompts
+        setTimeout(() => {
+          document.getElementById('prompts-liste')?.scrollIntoView({ behavior: 'smooth' });
+        }, 300);
+      }
+    }
+  }, []);
 
   useEffect(() => {
     try {
@@ -683,12 +711,24 @@ export default function Home() {
       (prompt.outputFormate || []).includes(filterOutputFormat);
     
     const anwendungMatch = filterAnwendungsfall === '' || 
-      (prompt.anwendungsfaelle || []).includes(filterAnwendungsfall);
+      (prompt.anwendungsfaelle || []).includes(filterAnwendungsfall) ||
+      // Wenn Hauptkategorie gefiltert wird, auch Unterkategorien matchen
+      (prompt.anwendungsfaelle || []).some(anw => {
+        for (const [hauptkat, unterkat] of Object.entries(ANWENDUNGSFAELLE)) {
+          if (hauptkat === filterAnwendungsfall && unterkat.includes(anw)) {
+            return true;
+          }
+        }
+        return false;
+      });
 
     const tagMatch = filterTag === '' ||
       (prompt.tags || []).includes(filterTag);
 
-    return suchMatch && plattformMatch && outputMatch && anwendungMatch && tagMatch;
+    const rolleMatch = filterRolle === '' ||
+      prompt.erstelltVonRolle === filterRolle;
+
+    return suchMatch && plattformMatch && outputMatch && anwendungMatch && tagMatch && rolleMatch;
   });
 
   const sortiertePrompts = [...gefiltertePrompts].sort((a, b) => {
@@ -1178,7 +1218,7 @@ export default function Home() {
                 fontSize: '0.95rem'
               }}
             >
-              📊 Dashboard
+              📊 Dashboard Aktivität
             </Link>
 
             {isAuthenticated && (
@@ -1606,8 +1646,27 @@ export default function Home() {
                   background: 'var(--gray-light)',
                   borderRadius: '0.5rem'
                 }}>
-                  {faelle.map(fall => (
-                    <label key={fall} style={{
+                  {faelle.length > 0 ? (
+                    /* Hat Unterkategorien → Zeige diese */
+                    faelle.map(fall => (
+                      <label key={fall} style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '0.5rem',
+                        cursor: 'pointer'
+                      }}>
+                        <input
+                          type="checkbox"
+                          checked={neueAnwendungsfaelle.includes(fall)}
+                          onChange={() => toggleAnwendungsfall(fall)}
+                          style={{ cursor: 'pointer' }}
+                        />
+                        <span style={{ fontSize: '0.9rem' }}>{fall}</span>
+                      </label>
+                    ))
+                  ) : (
+                    /* Keine Unterkategorien → Zeige Hauptkategorie */
+                    <label style={{
                       display: 'flex',
                       alignItems: 'center',
                       gap: '0.5rem',
@@ -1615,13 +1674,13 @@ export default function Home() {
                     }}>
                       <input
                         type="checkbox"
-                        checked={neueAnwendungsfaelle.includes(fall)}
-                        onChange={() => toggleAnwendungsfall(fall)}
+                        checked={neueAnwendungsfaelle.includes(kategorie)}
+                        onChange={() => toggleAnwendungsfall(kategorie)}
                         style={{ cursor: 'pointer' }}
                       />
-                      <span style={{ fontSize: '0.9rem' }}>{fall}</span>
+                      <span style={{ fontSize: '0.9rem', fontWeight: '500' }}>{kategorie}</span>
                     </label>
-                  ))}
+                  )}
                 </div>
               </div>
             ))}
@@ -1802,8 +1861,15 @@ export default function Home() {
               }}
             >
               <option value="">Alle Anwendungsfälle</option>
-              {Object.values(ANWENDUNGSFAELLE).flat().map(f => (
-                <option key={f} value={f}>{f}</option>
+              {Object.entries(ANWENDUNGSFAELLE).map(([kategorie, unterkategorien]) => (
+                <optgroup key={kategorie} label={kategorie}>
+                  {/* Hauptkategorie als Option */}
+                  <option value={kategorie}>{kategorie}</option>
+                  {/* Unterkategorien (falls vorhanden) */}
+                  {unterkategorien.map(uk => (
+                    <option key={uk} value={uk}>→ {uk}</option>
+                  ))}
+                </optgroup>
               ))}
             </select>
 
@@ -1824,6 +1890,22 @@ export default function Home() {
             </select>
 
             <select
+              value={filterRolle}
+              onChange={(e) => setFilterRolle(e.target.value)}
+              style={{
+                padding: '0.75rem',
+                border: '2px solid var(--gray-light)',
+                borderRadius: '0.5rem',
+                fontSize: '1rem'
+              }}
+            >
+              <option value="">Alle Rollen 👥</option>
+              {ROLLEN.map(rolle => (
+                <option key={rolle} value={rolle}>{rolle}</option>
+              ))}
+            </select>
+
+            <select
               value={sortierung}
               onChange={(e) => setSortierung(e.target.value as any)}
               style={{
@@ -1840,7 +1922,7 @@ export default function Home() {
           </div>
 
           {/* Filter zurücksetzen Button */}
-          {(suchbegriff || filterPlattform || filterOutputFormat || filterAnwendungsfall || filterTag) && (
+          {(suchbegriff || filterPlattform || filterOutputFormat || filterAnwendungsfall || filterTag || filterRolle) && (
             <button
               onClick={() => {
                 setSuchbegriff('');
@@ -1848,6 +1930,7 @@ export default function Home() {
                 setFilterOutputFormat('');
                 setFilterAnwendungsfall('');
                 setFilterTag('');
+                setFilterRolle('');
               }}
               style={{
                 marginTop: '1rem',
@@ -1893,7 +1976,7 @@ export default function Home() {
         )}
 
         {/* Prompts Liste */}
-        <div style={{ display: 'grid', gap: '1.5rem' }}>
+        <div id="prompts-liste" style={{ display: 'grid', gap: '1.5rem' }}>
           {sortiertePrompts.map(prompt => (
             <div key={prompt.id} style={{
               background: 'white',

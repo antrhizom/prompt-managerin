@@ -173,12 +173,24 @@ export default function AdminDashboard() {
         }}>
           <div>
             <h1 style={{ fontSize: '2rem', marginBottom: '0.25rem' }}>
-              📊 Admin Dashboard
+              📊 Dashboard Aktivität
             </h1>
-            <p style={{ opacity: 0.9 }}>
-              Übersicht über alle Prompts und Statistiken
+            <p style={{ opacity: 0.9, marginBottom: '0.5rem' }}>
+              Übersicht über alle Prompts und Aktivitäten
             </p>
-            <p style={{ opacity: 0.7, fontSize: '0.85rem', marginTop: '0.25rem' }}>
+            <div style={{ 
+              background: 'rgba(255,255,255,0.15)', 
+              padding: '0.75rem 1rem',
+              borderRadius: '0.5rem',
+              marginTop: '0.75rem',
+              fontSize: '0.9rem',
+              lineHeight: '1.6'
+            }}>
+              <strong>💡 So funktioniert's:</strong> Hier siehst du alle Aktivitäten und Statistiken.
+              <strong> Klicke auf eine Rolle</strong> (z.B. "Lehrperson" oder "Lernende"), 
+              um zur Startseite zu springen und nur Prompts dieser Rolle zu sehen.
+            </div>
+            <p style={{ opacity: 0.7, fontSize: '0.85rem', marginTop: '0.5rem' }}>
               Letztes Update: {lastRefresh.toLocaleTimeString('de-DE')}
             </p>
           </div>
@@ -470,6 +482,16 @@ export default function AdminDashboard() {
             <h2 style={{ fontSize: '1.5rem', marginBottom: '1.5rem', color: 'var(--dark-blue)' }}>
               👥 Prompts pro Rolle
             </h2>
+            <p style={{ 
+              fontSize: '0.9rem', 
+              color: 'var(--gray-dark)', 
+              marginBottom: '1rem',
+              background: 'var(--gray-light)',
+              padding: '0.75rem',
+              borderRadius: '0.5rem'
+            }}>
+              💡 <strong>Tipp:</strong> Klicke auf eine Rolle, um zur Startseite zu springen und nur Prompts dieser Rolle zu sehen.
+            </p>
             <div style={{
               display: 'grid',
               gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))',
@@ -478,19 +500,38 @@ export default function AdminDashboard() {
               {Object.entries(promptsProRolle)
                 .sort((a, b) => b[1] - a[1])
                 .map(([rolle, anzahl]) => (
-                  <div key={rolle} style={{
-                    padding: '1rem',
-                    background: '#fef3c7',
-                    borderRadius: '0.5rem',
-                    borderLeft: '4px solid var(--orange)'
-                  }}>
+                  <Link 
+                    key={rolle} 
+                    href={`/?rolle=${encodeURIComponent(rolle)}`}
+                    style={{
+                      padding: '1rem',
+                      background: '#fef3c7',
+                      borderRadius: '0.5rem',
+                      borderLeft: '4px solid var(--orange)',
+                      textDecoration: 'none',
+                      cursor: 'pointer',
+                      transition: 'all 0.2s',
+                      display: 'block'
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.transform = 'translateY(-2px)';
+                      e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.transform = 'translateY(0)';
+                      e.currentTarget.style.boxShadow = 'none';
+                    }}
+                  >
                     <div style={{ fontSize: '1.5rem', fontWeight: '700', color: 'var(--orange)' }}>
                       {anzahl}
                     </div>
-                    <div style={{ fontSize: '0.95rem', color: 'var(--gray-dark)' }}>
+                    <div style={{ fontSize: '0.95rem', color: 'var(--gray-dark)', marginBottom: '0.25rem' }}>
                       {rolle}
                     </div>
-                  </div>
+                    <div style={{ fontSize: '0.75rem', color: 'var(--gray-medium)', marginTop: '0.5rem' }}>
+                      → Klicken zum Filtern
+                    </div>
+                  </Link>
                 ))}
             </div>
           </div>
