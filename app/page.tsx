@@ -875,7 +875,7 @@ export default function Home() {
                         if (username) setUsername('');
                       }
                     }}
-                    placeholder="z.B. 1ZBPQL"
+                    placeholder="z.B. ABC123"
                     autoFocus
                     style={{
                       width: '100%',
@@ -893,52 +893,71 @@ export default function Home() {
                   />
                 </div>
 
-                <div style={{ marginBottom: '1.5rem' }}>
-                  <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>
-                    Dein Name:
-                  </label>
-                  <input
-                    type="text"
-                    value={username}
-                    onChange={(e) => setUsername(e.target.value)}
-                    placeholder={username ? "" : "z.B. Anna Schmidt"}
-                    disabled={!!(username && userCode.length >= 6)}
-                    style={{
-                      width: '100%',
-                      padding: '0.75rem',
-                      border: username ? '2px solid var(--green)' : '2px solid var(--gray-light)',
+                {/* Wenn Name automatisch geladen: Nur Bestätigung zeigen */}
+                {username && userCode.length >= 6 ? (
+                  <div style={{ marginBottom: '1.5rem' }}>
+                    <div style={{ 
+                      padding: '1rem', 
+                      background: '#ecfdf5', 
+                      border: '2px solid var(--green)',
                       borderRadius: '0.5rem',
-                      fontSize: '1rem',
-                      background: username ? '#ecfdf5' : 'white',
-                      cursor: (username && userCode.length >= 6) ? 'not-allowed' : 'text',
-                      opacity: (username && userCode.length >= 6) ? '0.8' : '1'
-                    }}
-                    onKeyPress={(e) => e.key === 'Enter' && username && userCode && handleLoginAbschliessen()}
-                  />
-                  {username && userCode.length >= 6 ? (
-                    <div style={{ fontSize: '0.85rem', color: 'var(--green)', marginTop: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                      ✅ Name automatisch geladen: <strong>{username}</strong>
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '0.5rem',
+                      justifyContent: 'space-between'
+                    }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                        <span style={{ fontSize: '1.5rem' }}>✅</span>
+                        <div>
+                          <div style={{ fontSize: '0.85rem', color: 'var(--gray-medium)' }}>Angemeldet als:</div>
+                          <div style={{ fontSize: '1.1rem', fontWeight: '600', color: 'var(--green)' }}>{username}</div>
+                        </div>
+                      </div>
                       <button
                         onClick={() => setUsername('')}
                         style={{
-                          background: 'none',
+                          background: 'var(--primary-blue)',
+                          color: 'white',
                           border: 'none',
-                          color: 'var(--primary-blue)',
-                          textDecoration: 'underline',
+                          padding: '0.5rem 1rem',
+                          borderRadius: '0.5rem',
                           cursor: 'pointer',
                           fontSize: '0.85rem',
-                          padding: 0
+                          fontWeight: '500'
                         }}
                       >
-                        (ändern)
+                        Name ändern
                       </button>
                     </div>
-                  ) : userCode.length >= 6 ? (
-                    <div style={{ fontSize: '0.85rem', color: 'var(--orange)', marginTop: '0.5rem' }}>
-                      ℹ️ Neuer Code - bitte Namen eingeben
-                    </div>
-                  ) : null}
-                </div>
+                  </div>
+                ) : (
+                  /* Wenn kein Name geladen: Input-Feld zeigen */
+                  <div style={{ marginBottom: '1.5rem' }}>
+                    <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>
+                      Dein Name:
+                    </label>
+                    <input
+                      type="text"
+                      value={username}
+                      onChange={(e) => setUsername(e.target.value)}
+                      placeholder="z.B. Anna Schmidt"
+                      style={{
+                        width: '100%',
+                        padding: '0.75rem',
+                        border: '2px solid var(--gray-light)',
+                        borderRadius: '0.5rem',
+                        fontSize: '1rem',
+                        background: 'white'
+                      }}
+                      onKeyPress={(e) => e.key === 'Enter' && username && userCode && handleLoginAbschliessen()}
+                    />
+                    {userCode.length >= 6 && !username && (
+                      <div style={{ fontSize: '0.85rem', color: 'var(--orange)', marginTop: '0.5rem' }}>
+                        ℹ️ Neuer Code - bitte Namen eingeben
+                      </div>
+                    )}
+                  </div>
+                )}
 
                 <button
                   onClick={handleLoginAbschliessen}
