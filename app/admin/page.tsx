@@ -16,6 +16,7 @@ interface Prompt {
   erstelltVon: string;
   erstelltVonRolle?: string;
   erstelltAm: { seconds: number };
+  deleted?: boolean; // ← Für Soft Delete
 }
 
 export default function AdminDashboard() {
@@ -34,10 +35,12 @@ export default function AdminDashboard() {
     const q = query(collection(db, 'prompts'));
     
     const unsubscribe = onSnapshot(q, (snapshot) => {
-      const promptsData = snapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-      })) as Prompt[];
+      const promptsData = snapshot.docs
+        .map(doc => ({
+          id: doc.id,
+          ...doc.data()
+        }))
+        .filter(prompt => !prompt.deleted) as Prompt[]; // ← Filtere gelöschte Prompts!
       
       setPrompts(promptsData);
       setLoading(false);
