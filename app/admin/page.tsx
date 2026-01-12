@@ -328,6 +328,16 @@ export default function AdminDashboard() {
             <h2 style={{ fontSize: '1.5rem', marginBottom: '1.5rem', color: 'var(--dark-blue)' }}>
               Prompts pro Output-Format
             </h2>
+            <p style={{ 
+              fontSize: '0.9rem', 
+              color: 'var(--gray-dark)', 
+              marginBottom: '1rem',
+              background: 'var(--gray-light)',
+              padding: '0.75rem',
+              borderRadius: '0.5rem'
+            }}>
+              💡 <strong>Tipp:</strong> Klicke auf ein Format, um zur Startseite zu springen und nur Prompts mit diesem Output-Format zu sehen.
+            </p>
             <div style={{
               display: 'grid',
               gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))',
@@ -336,19 +346,38 @@ export default function AdminDashboard() {
               {Object.entries(promptsProFormat)
                 .sort((a, b) => b[1] - a[1])
                 .map(([format, anzahl]) => (
-                  <div key={format} style={{
-                    padding: '1rem',
-                    background: 'var(--light-blue)',
-                    borderRadius: '0.5rem',
-                    borderLeft: '4px solid var(--primary-blue)'
-                  }}>
+                  <Link 
+                    key={format} 
+                    href={`/?format=${encodeURIComponent(format)}`}
+                    style={{
+                      padding: '1rem',
+                      background: 'var(--light-blue)',
+                      borderRadius: '0.5rem',
+                      borderLeft: '4px solid var(--primary-blue)',
+                      textDecoration: 'none',
+                      cursor: 'pointer',
+                      transition: 'all 0.2s',
+                      display: 'block'
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.transform = 'translateY(-2px)';
+                      e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.transform = 'translateY(0)';
+                      e.currentTarget.style.boxShadow = 'none';
+                    }}
+                  >
                     <div style={{ fontSize: '1.5rem', fontWeight: '700', color: 'var(--primary-blue)' }}>
                       {anzahl}
                     </div>
-                    <div style={{ fontSize: '0.95rem', color: 'var(--gray-dark)' }}>
+                    <div style={{ fontSize: '0.95rem', color: 'var(--gray-dark)', marginBottom: '0.25rem' }}>
                       {format}
                     </div>
-                  </div>
+                    <div style={{ fontSize: '0.75rem', color: 'var(--gray-medium)', marginTop: '0.5rem' }}>
+                      → Klicken zum Filtern
+                    </div>
+                  </Link>
                 ))}
             </div>
           </div>
@@ -363,6 +392,16 @@ export default function AdminDashboard() {
             <h2 style={{ fontSize: '1.5rem', marginBottom: '1.5rem', color: 'var(--dark-blue)' }}>
               Prompts pro Plattform
             </h2>
+            <p style={{ 
+              fontSize: '0.9rem', 
+              color: 'var(--gray-dark)', 
+              marginBottom: '1rem',
+              background: 'var(--gray-light)',
+              padding: '0.75rem',
+              borderRadius: '0.5rem'
+            }}>
+              💡 <strong>Tipp:</strong> Klicke auf eine Plattform, um zur Startseite zu springen und nur Prompts dieser Plattform zu sehen.
+            </p>
             <div style={{
               display: 'grid',
               gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))',
@@ -371,19 +410,38 @@ export default function AdminDashboard() {
               {Object.entries(promptsProPlattform)
                 .sort((a, b) => b[1] - a[1])
                 .map(([plattform, anzahl]) => (
-                  <div key={plattform} style={{
-                    padding: '1rem',
-                    background: 'var(--gray-light)',
-                    borderRadius: '0.5rem',
-                    borderLeft: '4px solid var(--purple)'
-                  }}>
+                  <Link 
+                    key={plattform} 
+                    href={`/?plattform=${encodeURIComponent(plattform)}`}
+                    style={{
+                      padding: '1rem',
+                      background: 'var(--gray-light)',
+                      borderRadius: '0.5rem',
+                      borderLeft: '4px solid var(--purple)',
+                      textDecoration: 'none',
+                      cursor: 'pointer',
+                      transition: 'all 0.2s',
+                      display: 'block'
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.transform = 'translateY(-2px)';
+                      e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.transform = 'translateY(0)';
+                      e.currentTarget.style.boxShadow = 'none';
+                    }}
+                  >
                     <div style={{ fontSize: '1.5rem', fontWeight: '700', color: 'var(--purple)' }}>
                       {anzahl}
                     </div>
-                    <div style={{ fontSize: '0.95rem', color: 'var(--gray-dark)' }}>
+                    <div style={{ fontSize: '0.95rem', color: 'var(--gray-dark)', marginBottom: '0.25rem' }}>
                       {plattform}
                     </div>
-                  </div>
+                    <div style={{ fontSize: '0.75rem', color: 'var(--gray-medium)', marginTop: '0.5rem' }}>
+                      → Klicken zum Filtern
+                    </div>
+                  </Link>
                 ))}
             </div>
           </div>
@@ -447,6 +505,16 @@ export default function AdminDashboard() {
             <h2 style={{ fontSize: '1.5rem', marginBottom: '1.5rem', color: 'var(--dark-blue)' }}>
               Prompts pro Anwendungsfall
             </h2>
+            <p style={{ 
+              fontSize: '0.9rem', 
+              color: 'var(--gray-dark)', 
+              marginBottom: '1rem',
+              background: 'var(--gray-light)',
+              padding: '0.75rem',
+              borderRadius: '0.5rem'
+            }}>
+              💡 <strong>Tipp:</strong> Klicke auf einen Anwendungsfall, um zur Startseite zu springen und nur Prompts mit diesem Anwendungsfall zu sehen.
+            </p>
             <div style={{
               display: 'grid',
               gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))',
@@ -455,19 +523,38 @@ export default function AdminDashboard() {
               {Object.entries(promptsProAnwendungsfall)
                 .sort((a, b) => b[1] - a[1])
                 .map(([fall, anzahl]) => (
-                  <div key={fall} style={{
-                    padding: '1rem',
-                    background: '#ecfdf5',
-                    borderRadius: '0.5rem',
-                    borderLeft: '4px solid var(--green)'
-                  }}>
+                  <Link 
+                    key={fall} 
+                    href={`/?anwendungsfall=${encodeURIComponent(fall)}`}
+                    style={{
+                      padding: '1rem',
+                      background: '#ecfdf5',
+                      borderRadius: '0.5rem',
+                      borderLeft: '4px solid var(--green)',
+                      textDecoration: 'none',
+                      cursor: 'pointer',
+                      transition: 'all 0.2s',
+                      display: 'block'
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.transform = 'translateY(-2px)';
+                      e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.transform = 'translateY(0)';
+                      e.currentTarget.style.boxShadow = 'none';
+                    }}
+                  >
                     <div style={{ fontSize: '1.5rem', fontWeight: '700', color: 'var(--green)' }}>
                       {anzahl}
                     </div>
-                    <div style={{ fontSize: '0.95rem', color: 'var(--gray-dark)' }}>
+                    <div style={{ fontSize: '0.95rem', color: 'var(--gray-dark)', marginBottom: '0.25rem' }}>
                       {fall}
                     </div>
-                  </div>
+                    <div style={{ fontSize: '0.75rem', color: 'var(--gray-medium)', marginTop: '0.5rem' }}>
+                      → Klicken zum Filtern
+                    </div>
+                  </Link>
                 ))}
             </div>
           </div>

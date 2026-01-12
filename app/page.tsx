@@ -367,10 +367,29 @@ export default function Home() {
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const params = new URLSearchParams(window.location.search);
+      
+      // Alle möglichen Filter-Parameter auslesen
       const rolleParam = params.get('rolle');
+      const plattformParam = params.get('plattform');
+      const formatParam = params.get('format');
+      const anwendungsfallParam = params.get('anwendungsfall');
+      
+      // Filter setzen wenn Parameter vorhanden
       if (rolleParam) {
         setFilterRolle(decodeURIComponent(rolleParam));
-        // Scrolle zu den Prompts
+      }
+      if (plattformParam) {
+        setFilterPlattform(decodeURIComponent(plattformParam));
+      }
+      if (formatParam) {
+        setFilterOutputFormat(decodeURIComponent(formatParam));
+      }
+      if (anwendungsfallParam) {
+        setFilterAnwendungsfall(decodeURIComponent(anwendungsfallParam));
+      }
+      
+      // Scrolle zu den Prompts wenn irgendein Filter gesetzt wurde
+      if (rolleParam || plattformParam || formatParam || anwendungsfallParam) {
         setTimeout(() => {
           document.getElementById('prompts-liste')?.scrollIntoView({ behavior: 'smooth' });
         }, 300);
