@@ -792,12 +792,17 @@ export default function Home() {
         endproduktLink: neuerEndproduktLink.trim()
       });
 
-      handleBearbeitenAbbrechen();
-      setShowCreateForm(false);
+      // Alert zuerst
       alert('✅ Prompt erfolgreich aktualisiert!');
+      
+      // State-Updates verzögern um Render-Fehler zu vermeiden
+      setTimeout(() => {
+        handleBearbeitenAbbrechen();
+        setShowCreateForm(false);
+      }, 100);
     } catch (error) {
       console.error('Fehler beim Aktualisieren:', error);
-      alert('Fehler beim Aktualisieren des Prompts.');
+      alert('❌ Fehler beim Aktualisieren des Prompts. Bitte versuche es erneut.');
     }
   };
 
@@ -862,9 +867,14 @@ export default function Home() {
         ...(neuerEndproduktLink.trim() && { endproduktLink: neuerEndproduktLink.trim() })
       });
 
+      // Alert zuerst
       alert('✅ Prompt erfolgreich gespeichert!');
-      handleBearbeitenAbbrechen(); // Nutze die gleiche Reset-Funktion
-      setShowCreateForm(false);
+      
+      // State-Updates verzögern um Render-Fehler zu vermeiden
+      setTimeout(() => {
+        handleBearbeitenAbbrechen();
+        setShowCreateForm(false);
+      }, 100);
     } catch (error) {
       console.error('Fehler beim Speichern:', error);
       alert('❌ Fehler beim Speichern des Prompts. Bitte versuche es erneut.');
