@@ -76,6 +76,7 @@ interface Prompt {
   outputFormate: string[];
   anwendungsfaelle: string[];
   tags?: string[];
+  zusatzinstruktionen?: string;
   bewertungen: { [emoji: string]: number };
   nutzungsanzahl: number;
   erstelltVon: string;

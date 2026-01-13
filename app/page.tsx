@@ -38,6 +38,7 @@ interface Prompt {
   titel: string;
   beschreibung: string;
   promptText: string;
+  zusatzinstruktionen?: string;
   plattformenUndModelle: { [plattform: string]: string[] };
   outputFormate: string[];
   anwendungsfaelle: string[];
@@ -277,6 +278,7 @@ export default function Home() {
   const [neuerTitel, setNeuerTitel] = useState('');
   const [neueBeschreibung, setNeueBeschreibung] = useState('');
   const [neuerPromptText, setNeuerPromptText] = useState('');
+  const [neueZusatzinstruktionen, setNeueZusatzinstruktionen] = useState('');
   const [neuePlattformenUndModelle, setNeuePlattformenUndModelle] = useState<{ [key: string]: string[] }>({});
   const [neueOutputFormate, setNeueOutputFormate] = useState<string[]>([]);
   const [neueAnwendungsfaelle, setNeueAnwendungsfaelle] = useState<string[]>([]);
@@ -533,6 +535,7 @@ export default function Home() {
     setNeuerTitel(prompt.titel);
     setNeueBeschreibung(prompt.beschreibung);
     setNeuerPromptText(prompt.promptText);
+    setNeueZusatzinstruktionen(prompt.zusatzinstruktionen || '');
     setNeuePlattformenUndModelle(prompt.plattformenUndModelle || {});
     setNeueOutputFormate(prompt.outputFormate || []);
     setNeueAnwendungsfaelle(prompt.anwendungsfaelle || []);
@@ -557,6 +560,7 @@ export default function Home() {
     setNeuerTitel('');
     setNeueBeschreibung('');
     setNeuerPromptText('');
+    setNeueZusatzinstruktionen('');
     setNeuePlattformenUndModelle({});
     setNeueOutputFormate([]);
     setNeueAnwendungsfaelle([]);
@@ -610,6 +614,7 @@ export default function Home() {
         titel: neuerTitel.trim(),
         beschreibung: neueBeschreibung.trim(),
         promptText: neuerPromptText.trim(),
+        ...(neueZusatzinstruktionen.trim() && { zusatzinstruktionen: neueZusatzinstruktionen.trim() }),
         plattformenUndModelle: neuePlattformenUndModelle,
         outputFormate: neueOutputFormate,
         anwendungsfaelle: neueAnwendungsfaelle,
@@ -674,6 +679,7 @@ export default function Home() {
         titel: neuerTitel.trim(),
         beschreibung: neueBeschreibung.trim(),
         promptText: neuerPromptText.trim(),
+        ...(neueZusatzinstruktionen.trim() && { zusatzinstruktionen: neueZusatzinstruktionen.trim() }),
         plattformenUndModelle: neuePlattformenUndModelle,
         outputFormate: neueOutputFormate,
         anwendungsfaelle: neueAnwendungsfaelle,
@@ -1648,6 +1654,85 @@ export default function Home() {
             </div>
           </div>
 
+          {/* Zusatzinstruktionen (NEU) */}
+          <div style={{ marginBottom: '1rem' }}>
+            <label style={{ 
+              display: 'flex', 
+              alignItems: 'center',
+              gap: '0.5rem',
+              marginBottom: '0.5rem', 
+              fontWeight: '500' 
+            }}>
+              <span>📝 Zusatzinstruktionen</span>
+              <span style={{ 
+                fontSize: '0.85rem', 
+                color: 'var(--gray-medium)',
+                fontWeight: 'normal'
+              }}>
+                (optional)
+              </span>
+              <button
+                type="button"
+                onClick={() => alert(
+                  '💡 ZUSATZINSTRUKTIONEN:\n\n' +
+                  '✅ Custom Instructions für KI-Assistenten\n' +
+                  '✅ Individuelle Anpassungen\n' +
+                  '✅ Spezielle Hinweise für deine Nutzung\n' +
+                  '✅ Beispiele oder Varianten\n\n' +
+                  'Besonders nützlich bei:\n' +
+                  '• ChatGPT Custom GPTs\n' +
+                  '• Claude Projects\n' +
+                  '• Individuelle Prompt-Variationen\n\n' +
+                  'z.B. "Für meine 7. Klasse: Verwende einfachere Sprache"'
+                )}
+                style={{
+                  background: '#10b981',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '50%',
+                  width: '20px',
+                  height: '20px',
+                  fontSize: '0.75rem',
+                  fontWeight: 'bold',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center'
+                }}
+                title="Info zu Zusatzinstruktionen"
+              >
+                ?
+              </button>
+            </label>
+            <textarea
+              value={neueZusatzinstruktionen}
+              onChange={(e) => setNeueZusatzinstruktionen(e.target.value)}
+              placeholder="z.B. 'Für meine 8. Klasse: Verwende einfachere Sprache und mehr Beispiele' oder 'Custom Instructions: Antworte immer auf Deutsch'"
+              rows={4}
+              style={{
+                width: '100%',
+                padding: '0.75rem',
+                border: '2px solid #d1fae5',
+                borderRadius: '0.5rem',
+                fontSize: '0.95rem',
+                fontFamily: 'monospace',
+                resize: 'vertical',
+                background: '#f0fdf4'
+              }}
+            />
+            <div style={{ 
+              marginTop: '0.5rem',
+              padding: '0.75rem',
+              background: '#d1fae5',
+              borderRadius: '0.5rem',
+              fontSize: '0.85rem',
+              color: '#065f46',
+              lineHeight: '1.5'
+            }}>
+              💡 <strong>Hinweis:</strong> Dieses Feld ist optional und besonders nützlich für individuelle Anpassungen oder Custom Instructions bei KI-Assistenten.
+            </div>
+          </div>
+
           {/* Plattformen & Modelle ACCORDION */}
           <div style={{ marginBottom: '1rem' }}>
             <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>
@@ -2378,6 +2463,38 @@ export default function Home() {
               }}>
                 {prompt.promptText}
               </div>
+
+              {/* Zusatzinstruktionen (falls vorhanden) */}
+              {prompt.zusatzinstruktionen && (
+                <div style={{
+                  background: '#f0fdf4',
+                  padding: '1rem',
+                  borderRadius: '0.5rem',
+                  marginBottom: '1rem',
+                  border: '2px solid #d1fae5'
+                }}>
+                  <div style={{ 
+                    fontSize: '0.9rem', 
+                    fontWeight: '600',
+                    marginBottom: '0.5rem',
+                    color: '#065f46',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.5rem'
+                  }}>
+                    📝 Zusatzinstruktionen
+                  </div>
+                  <div style={{
+                    fontFamily: 'monospace',
+                    fontSize: '0.9rem',
+                    whiteSpace: 'pre-wrap',
+                    wordBreak: 'break-word',
+                    color: '#065f46'
+                  }}>
+                    {prompt.zusatzinstruktionen}
+                  </div>
+                </div>
+              )}
 
               {/* Metadata */}
               <div style={{ marginBottom: '1rem' }}>
