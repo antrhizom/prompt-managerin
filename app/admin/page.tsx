@@ -43,6 +43,7 @@ const ALLE_ANWENDUNGSFAELLE = [
   'Lern-Bot',
   'Gesprächsbot',
   'Organisationsbot',
+  'Korrekturbot',
   // Fotos
   'Photoshop',
   'Fotoreportagen',

@@ -42,7 +42,8 @@ interface Prompt {
   outputFormate: string[];
   anwendungsfaelle: string[];
   tags: string[];
-  link: string;
+  link1: string;
+  link2: string;
   bewertungen: { [emoji: string]: number };
   nutzungsanzahl: number;
   erstelltVon: string;
@@ -219,7 +220,8 @@ const ANWENDUNGSFAELLE = {
     'Custom Prompt',
     'Lern-Bot',
     'Gesprächsbot',
-    'Organisationsbot'
+    'Organisationsbot',
+    'Korrekturbot'
   ],
   'Fotos': [
     'Photoshop',
@@ -264,7 +266,8 @@ export default function Home() {
   const [neueOutputFormate, setNeueOutputFormate] = useState<string[]>([]);
   const [neueAnwendungsfaelle, setNeueAnwendungsfaelle] = useState<string[]>([]);
   const [neueTags, setNeueTags] = useState('');
-  const [neuerLink, setNeuerLink] = useState('');
+  const [neuerLink1, setNeuerLink1] = useState('');
+  const [neuerLink2, setNeuerLink2] = useState('');
   const [neueRolle, setNeueRolle] = useState('');
   
   // Prozessbeschreibung State (NEU)
@@ -518,7 +521,8 @@ export default function Home() {
     setNeueOutputFormate(prompt.outputFormate || []);
     setNeueAnwendungsfaelle(prompt.anwendungsfaelle || []);
     setNeueTags(prompt.tags?.join(', ') || '');
-    setNeuerLink(prompt.link || '');
+    setNeuerLink1(prompt.link1 || '');
+    setNeuerLink2(prompt.link2 || '');
     setNeueRolle(prompt.erstelltVonRolle || '');
     // Prozessbeschreibung laden (NEU)
     setNeueProblemausgangslage(prompt.problemausgangslage || '');
@@ -540,7 +544,8 @@ export default function Home() {
     setNeueOutputFormate([]);
     setNeueAnwendungsfaelle([]);
     setNeueTags('');
-    setNeuerLink('');
+    setNeuerLink1('');
+    setNeuerLink2('');
     setNeueRolle('');
     // Prozessbeschreibung zurücksetzen
     setNeueProblemausgangslage('');
@@ -581,7 +586,8 @@ export default function Home() {
         outputFormate: neueOutputFormate,
         anwendungsfaelle: neueAnwendungsfaelle,
         tags: neueTags.split(',').map(t => t.trim()).filter(t => t),
-        link: neuerLink.trim(),
+        link1: neuerLink1.trim(),
+        link2: neuerLink2.trim(),
         // Prozessbeschreibung (NEU)
         problemausgangslage: neueProblemausgangslage.trim(),
         loesungsbeschreibung: neueLoesungsbeschreibung.trim(),
@@ -637,7 +643,8 @@ export default function Home() {
         outputFormate: neueOutputFormate,
         anwendungsfaelle: neueAnwendungsfaelle,
         tags: neueTags.split(',').map(t => t.trim()).filter(t => t),
-        link: neuerLink.trim(),
+        link1: neuerLink1.trim(),
+        link2: neuerLink2.trim(),
         bewertungen: { '👍': 0, '❤️': 0, '🔥': 0, '⭐': 0, '💡': 0 },
         nutzungsanzahl: 0,
         erstelltVon: userCode,
@@ -1561,6 +1568,71 @@ export default function Home() {
                 resize: 'vertical'
               }}
             />
+            
+            {/* File-Upload für .md und .txt */}
+            <div style={{ 
+              marginTop: '1rem',
+              padding: '1rem',
+              background: 'var(--gray-light)',
+              borderRadius: '0.5rem',
+              border: '2px dashed var(--gray-medium)'
+            }}>
+              <label style={{ 
+                display: 'block', 
+                marginBottom: '0.5rem', 
+                fontWeight: '500',
+                color: 'var(--dark-blue)'
+              }}>
+                📄 Oder Datei hochladen (optional)
+              </label>
+              <div style={{ 
+                fontSize: '0.85rem', 
+                color: 'var(--gray-dark)', 
+                marginBottom: '0.75rem',
+                lineHeight: '1.5'
+              }}>
+                Lade eine <strong>.md</strong> (Markdown) oder <strong>.txt</strong> Datei hoch. 
+                Der Inhalt wird automatisch in das Textfeld oben eingefügt.
+              </div>
+              <input
+                type="file"
+                accept=".md,.txt"
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if (file) {
+                    // Prüfe Dateityp
+                    const fileExtension = file.name.split('.').pop()?.toLowerCase();
+                    if (fileExtension !== 'md' && fileExtension !== 'txt') {
+                      alert('Nur .md und .txt Dateien sind erlaubt!');
+                      e.target.value = '';
+                      return;
+                    }
+                    
+                    // Lese Datei-Inhalt
+                    const reader = new FileReader();
+                    reader.onload = (event) => {
+                      const content = event.target?.result as string;
+                      setNeuerPromptText(content);
+                    };
+                    reader.onerror = () => {
+                      alert('Fehler beim Lesen der Datei.');
+                    };
+                    reader.readAsText(file);
+                    
+                    // Reset file input nach Upload
+                    e.target.value = '';
+                  }
+                }}
+                style={{
+                  width: '100%',
+                  padding: '0.5rem',
+                  border: '1px solid var(--gray-medium)',
+                  borderRadius: '0.25rem',
+                  background: 'white',
+                  cursor: 'pointer'
+                }}
+              />
+            </div>
           </div>
 
           {/* Plattformen & Modelle ACCORDION */}
@@ -1815,16 +1887,34 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Link zum Beispiel/Resultat */}
+          {/* Links zum Beispiel/Resultat */}
           <div style={{ marginBottom: '1.5rem' }}>
             <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>
-              🔗 Link <span style={{ fontSize: '0.85rem', color: 'var(--gray-medium)' }}>(optional - z.B. Link zu Beispiel, Resultat oder Demo)</span>
+              🔗 Link 1 <span style={{ fontSize: '0.85rem', color: 'var(--gray-medium)' }}>(optional - z.B. Link zu Beispiel, Resultat oder Demo)</span>
             </label>
             <input
               type="url"
-              value={neuerLink}
-              onChange={(e) => setNeuerLink(e.target.value)}
+              value={neuerLink1}
+              onChange={(e) => setNeuerLink1(e.target.value)}
               placeholder="z.B. 'https://docs.google.com/...' oder 'https://github.com/...'"
+              style={{
+                width: '100%',
+                padding: '0.75rem',
+                border: '2px solid var(--gray-light)',
+                borderRadius: '0.5rem',
+                fontSize: '1rem',
+                marginBottom: '1rem'
+              }}
+            />
+            
+            <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>
+              🔗 Link 2 <span style={{ fontSize: '0.85rem', color: 'var(--gray-medium)' }}>(optional - z.B. weiterer Link)</span>
+            </label>
+            <input
+              type="url"
+              value={neuerLink2}
+              onChange={(e) => setNeuerLink2(e.target.value)}
+              placeholder="z.B. 'https://example.com/...'"
               style={{
                 width: '100%',
                 padding: '0.75rem',
@@ -2203,6 +2293,20 @@ export default function Home() {
                       </span>
                     )}
                   </div>
+                  
+                  {/* Erstellungsdatum */}
+                  <div style={{ 
+                    fontSize: '0.85rem', 
+                    color: 'var(--gray-medium)', 
+                    marginBottom: '0.5rem' 
+                  }}>
+                    📅 Erstellt am: {new Date(prompt.erstelltAm.seconds * 1000).toLocaleDateString('de-DE', {
+                      year: 'numeric',
+                      month: '2-digit',
+                      day: '2-digit'
+                    })}
+                  </div>
+                  
                   {prompt.beschreibung && (
                     <p style={{
                       color: 'var(--gray-medium)',
@@ -2376,7 +2480,8 @@ export default function Home() {
 
               {/* Kommentar */}
               {/* Link */}
-              {prompt.link && (
+              {/* Links */}
+              {prompt.link1 && (
                 <div style={{
                   background: '#eff6ff',
                   padding: '0.75rem',
@@ -2384,9 +2489,9 @@ export default function Home() {
                   marginBottom: '1rem',
                   borderLeft: '3px solid #3b82f6'
                 }}>
-                  <strong style={{ fontSize: '0.9rem' }}>🔗 Link:</strong>
+                  <strong style={{ fontSize: '0.9rem' }}>🔗 Link 1:</strong>
                   <a
-                    href={prompt.link}
+                    href={prompt.link1}
                     target="_blank"
                     rel="noopener noreferrer"
                     style={{
@@ -2398,7 +2503,34 @@ export default function Home() {
                       wordBreak: 'break-all'
                     }}
                   >
-                    {prompt.link} →
+                    {prompt.link1} →
+                  </a>
+                </div>
+              )}
+
+              {prompt.link2 && (
+                <div style={{
+                  background: '#eff6ff',
+                  padding: '0.75rem',
+                  borderRadius: '0.5rem',
+                  marginBottom: '1rem',
+                  borderLeft: '3px solid #3b82f6'
+                }}>
+                  <strong style={{ fontSize: '0.9rem' }}>🔗 Link 2:</strong>
+                  <a
+                    href={prompt.link2}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{
+                      display: 'block',
+                      marginTop: '0.25rem',
+                      fontSize: '0.95rem',
+                      color: '#1d4ed8',
+                      textDecoration: 'none',
+                      wordBreak: 'break-all'
+                    }}
+                  >
+                    {prompt.link2} →
                   </a>
                 </div>
               )}

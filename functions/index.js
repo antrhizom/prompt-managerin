@@ -15,7 +15,7 @@ const EMAIL_CONFIG = {
   service: 'gmail',
   auth: {
     user: 'antrhizom@gmail.com',
-    pass: 'ttxe dowj rfzg forj'  // ← HIER DEIN APP-PASSWORT EINTRAGEN!
+    pass: 'xxxx xxxx xxxx xxxx'  // ← HIER DEIN APP-PASSWORT EINTRAGEN!
   }
 };
 
