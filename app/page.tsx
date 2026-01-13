@@ -2676,11 +2676,14 @@ export default function Home() {
                     color: 'var(--gray-medium)', 
                     marginBottom: '0.5rem' 
                   }}>
-                    📅 Erstellt am: {new Date(prompt.erstelltAm.seconds * 1000).toLocaleDateString('de-DE', {
-                      year: 'numeric',
-                      month: '2-digit',
-                      day: '2-digit'
-                    })}
+                    📅 Erstellt am: {prompt.erstelltAm && prompt.erstelltAm.seconds 
+                      ? new Date(prompt.erstelltAm.seconds * 1000).toLocaleDateString('de-DE', {
+                          year: 'numeric',
+                          month: '2-digit',
+                          day: '2-digit'
+                        })
+                      : 'Gerade eben'
+                    }
                   </div>
                   
                   {prompt.beschreibung && (
@@ -3234,7 +3237,9 @@ export default function Home() {
                               fontSize: '0.75rem',
                               color: 'var(--gray-medium)'
                             }}>
-                              {kommentar.timestamp && new Date(kommentar.timestamp.seconds * 1000).toLocaleDateString('de-DE')}
+                              {kommentar.timestamp && kommentar.timestamp.seconds 
+                                ? new Date(kommentar.timestamp.seconds * 1000).toLocaleDateString('de-DE')
+                                : ''}
                             </div>
                           </div>
                         ))}
