@@ -1583,7 +1583,7 @@ export default function Home() {
                 fontWeight: '500',
                 color: 'var(--dark-blue)'
               }}>
-                📄 Oder Datei hochladen (optional)
+                📄 Zusätzliche prompt-Dokumente
               </label>
               <div style={{ 
                 fontSize: '0.85rem', 
@@ -2638,6 +2638,8 @@ export default function Home() {
                   <span style={{ fontSize: '0.9rem', color: 'var(--gray-medium)' }}>
                     📊 {prompt.nutzungsanzahl}x genutzt
                   </span>
+                  
+                  {/* Kopieren Button */}
                   <button
                     onClick={() => {
                       handleNutzung(prompt.id);
@@ -2656,6 +2658,41 @@ export default function Home() {
                     }}
                   >
                     📋 Kopieren
+                  </button>
+                  
+                  {/* Download Button */}
+                  <button
+                    onClick={() => {
+                      // Erstelle Datei-Inhalt
+                      const content = prompt.promptText;
+                      const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+                      const url = URL.createObjectURL(blob);
+                      
+                      // Erstelle Download-Link
+                      const a = document.createElement('a');
+                      a.href = url;
+                      a.download = `${prompt.titel.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.txt`;
+                      document.body.appendChild(a);
+                      a.click();
+                      
+                      // Cleanup
+                      document.body.removeChild(a);
+                      URL.revokeObjectURL(url);
+                      
+                      alert('✅ Prompt als .txt heruntergeladen!');
+                    }}
+                    style={{
+                      padding: '0.5rem 1rem',
+                      background: 'var(--green)',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: '0.5rem',
+                      fontSize: '0.95rem',
+                      fontWeight: '600',
+                      cursor: 'pointer'
+                    }}
+                  >
+                    💾 Download
                   </button>
                 </div>
               </div>
