@@ -580,6 +580,16 @@ export default function Home() {
       return;
     }
 
+    if (!neueRolle) {
+      alert('Bitte wähle deine Rolle aus!');
+      return;
+    }
+
+    if (!neueBildungsstufe) {
+      alert('Bitte wähle deine Bildungsstufe aus!');
+      return;
+    }
+
     if (Object.keys(neuePlattformenUndModelle).length === 0) {
       alert('Bitte mindestens eine Plattform mit Modell auswählen!');
       return;
