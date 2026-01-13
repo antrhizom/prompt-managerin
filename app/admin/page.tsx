@@ -80,6 +80,7 @@ interface Prompt {
   nutzungsanzahl: number;
   erstelltVon: string;
   erstelltVonRolle?: string;
+  bildungsstufe?: string;
   erstelltAm: { seconds: number };
   deleted?: boolean; // ← Für Soft Delete
 }
