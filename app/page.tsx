@@ -61,6 +61,14 @@ interface Prompt {
     grund: string;
     timestamp: string;
   }>;
+  // Kommentare (NEU)
+  kommentare?: Array<{
+    id: string;
+    userCode: string;
+    userName: string;
+    text: string;
+    timestamp: Timestamp;
+  }>;
   // Prozessbeschreibung (NEU)
   problemausgangslage?: string;
   loesungsbeschreibung?: string;
@@ -376,6 +384,10 @@ const ANWENDUNGSFAELLE = {
   'Grafik und Infografik/Diagramme': [
     'HTML-Grafik',
     'Bild-Grafik'
+  ],
+  'Design': [
+    'Internetseite',
+    'Objekte'
   ],
   'Social Media Inhalte': [
     'Reel',
@@ -850,13 +862,12 @@ export default function Home() {
         ...(neuerEndproduktLink.trim() && { endproduktLink: neuerEndproduktLink.trim() })
       });
 
+      alert('✅ Prompt erfolgreich gespeichert!');
       handleBearbeitenAbbrechen(); // Nutze die gleiche Reset-Funktion
       setShowCreateForm(false);
-
-      alert('✅ Prompt erfolgreich gespeichert!');
     } catch (error) {
       console.error('Fehler beim Speichern:', error);
-      alert('Fehler beim Speichern des Prompts.');
+      alert('❌ Fehler beim Speichern des Prompts. Bitte versuche es erneut.');
     }
   };
 
@@ -892,6 +903,46 @@ export default function Home() {
       });
     } catch (error) {
       console.error('Fehler beim Zählen:', error);
+    }
+  };
+
+  // ============================================
+  // KOMMENTARE
+  // ============================================
+
+  const handleKommentarHinzufuegen = async (promptId: string, kommentarText: string) => {
+    if (!isAuthenticated) {
+      alert('Bitte melde dich an, um Kommentare zu schreiben.');
+      return;
+    }
+
+    if (!kommentarText.trim()) {
+      alert('Kommentar darf nicht leer sein.');
+      return;
+    }
+
+    try {
+      const prompt = prompts.find(p => p.id === promptId);
+      if (!prompt) return;
+
+      const neuerKommentar = {
+        id: Date.now().toString(),
+        userCode: userCode,
+        userName: username,
+        text: kommentarText.trim(),
+        timestamp: Timestamp.now()
+      };
+
+      const aktualisierteKommentare = [...(prompt.kommentare || []), neuerKommentar];
+
+      await updateDoc(doc(db, 'prompts', promptId), {
+        kommentare: aktualisierteKommentare
+      });
+
+      alert('✅ Kommentar hinzugefügt!');
+    } catch (error) {
+      console.error('Fehler beim Hinzufügen des Kommentars:', error);
+      alert('❌ Fehler beim Hinzufügen des Kommentars.');
     }
   };
 
@@ -2723,19 +2774,31 @@ export default function Home() {
                     </strong>
                     {Object.entries(prompt.plattformenUndModelle || {}).map(([plattform, modelle]) => (
                       <div key={plattform} style={{ marginBottom: '0.5rem' }}>
-                        <span style={{
-                          display: 'inline-block',
-                          padding: '0.25rem 0.75rem',
-                          background: 'var(--purple)',
-                          color: 'white',
-                          borderRadius: '1rem',
-                          fontSize: '0.85rem',
-                          marginRight: '0.5rem',
-                          marginBottom: '0.25rem',
-                          fontWeight: '600'
-                        }}>
+                        <button
+                          onClick={() => {
+                            setFilterPlattform(plattform);
+                            window.scrollTo({ top: 0, behavior: 'smooth' });
+                          }}
+                          style={{
+                            display: 'inline-block',
+                            padding: '0.25rem 0.75rem',
+                            background: 'var(--purple)',
+                            color: 'white',
+                            borderRadius: '1rem',
+                            fontSize: '0.85rem',
+                            marginRight: '0.5rem',
+                            marginBottom: '0.25rem',
+                            fontWeight: '600',
+                            border: 'none',
+                            cursor: 'pointer',
+                            transition: 'transform 0.2s'
+                          }}
+                          onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
+                          onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
+                          title={`Filter nach ${plattform}`}
+                        >
                           {plattform}
-                        </span>
+                        </button>
                         {modelle.map(modell => (
                           <span key={modell} style={{
                             display: 'inline-block',
@@ -2789,18 +2852,31 @@ export default function Home() {
                       Formate:
                     </strong>
                     {(prompt.outputFormate || []).map(f => (
-                      <span key={f} style={{
-                        display: 'inline-block',
-                        padding: '0.25rem 0.75rem',
-                        background: 'var(--teal)',
-                        color: 'white',
-                        borderRadius: '1rem',
-                        fontSize: '0.85rem',
-                        marginRight: '0.5rem',
-                        marginBottom: '0.5rem'
-                      }}>
+                      <button
+                        key={f}
+                        onClick={() => {
+                          setFilterOutputFormat(f);
+                          window.scrollTo({ top: 0, behavior: 'smooth' });
+                        }}
+                        style={{
+                          display: 'inline-block',
+                          padding: '0.25rem 0.75rem',
+                          background: 'var(--teal)',
+                          color: 'white',
+                          borderRadius: '1rem',
+                          fontSize: '0.85rem',
+                          marginRight: '0.5rem',
+                          marginBottom: '0.5rem',
+                          border: 'none',
+                          cursor: 'pointer',
+                          transition: 'transform 0.2s'
+                        }}
+                        onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
+                        onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
+                        title={`Filter nach ${f}`}
+                      >
                         {f}
-                      </span>
+                      </button>
                     ))}
                   </div>
                 )}
@@ -2812,18 +2888,31 @@ export default function Home() {
                       Anwendung:
                     </strong>
                     {(prompt.anwendungsfaelle || []).map(a => (
-                      <span key={a} style={{
-                        display: 'inline-block',
-                        padding: '0.25rem 0.75rem',
-                        background: 'var(--green)',
-                        color: 'white',
-                        borderRadius: '1rem',
-                        fontSize: '0.85rem',
-                        marginRight: '0.5rem',
-                        marginBottom: '0.5rem'
-                      }}>
+                      <button
+                        key={a}
+                        onClick={() => {
+                          setFilterAnwendungsfall(a);
+                          window.scrollTo({ top: 0, behavior: 'smooth' });
+                        }}
+                        style={{
+                          display: 'inline-block',
+                          padding: '0.25rem 0.75rem',
+                          background: 'var(--green)',
+                          color: 'white',
+                          borderRadius: '1rem',
+                          fontSize: '0.85rem',
+                          marginRight: '0.5rem',
+                          marginBottom: '0.5rem',
+                          border: 'none',
+                          cursor: 'pointer',
+                          transition: 'transform 0.2s'
+                        }}
+                        onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
+                        onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
+                        title={`Filter nach ${a}`}
+                      >
                         {a}
-                      </span>
+                      </button>
                     ))}
                   </div>
                 )}
@@ -2835,18 +2924,31 @@ export default function Home() {
                       Tags:
                     </strong>
                     {(prompt.tags || []).map((tag, i) => (
-                      <span key={i} style={{
-                        display: 'inline-block',
-                        padding: '0.25rem 0.75rem',
-                        background: 'var(--light-blue)',
-                        color: 'var(--dark-blue)',
-                        borderRadius: '1rem',
-                        fontSize: '0.85rem',
-                        marginRight: '0.5rem',
-                        marginBottom: '0.5rem'
-                      }}>
+                      <button
+                        key={i}
+                        onClick={() => {
+                          setFilterTag(tag);
+                          window.scrollTo({ top: 0, behavior: 'smooth' });
+                        }}
+                        style={{
+                          display: 'inline-block',
+                          padding: '0.25rem 0.75rem',
+                          background: 'var(--light-blue)',
+                          color: 'var(--dark-blue)',
+                          borderRadius: '1rem',
+                          fontSize: '0.85rem',
+                          marginRight: '0.5rem',
+                          marginBottom: '0.5rem',
+                          border: 'none',
+                          cursor: 'pointer',
+                          transition: 'transform 0.2s'
+                        }}
+                        onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
+                        onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
+                        title={`Filter nach #${tag}`}
+                      >
                         #{tag}
-                      </span>
+                      </button>
                     ))}
                   </div>
                 )}
@@ -3069,6 +3171,106 @@ export default function Home() {
                     💾 Download
                   </button>
                 </div>
+
+                {/* Kommentare (nur für eingeloggte User) */}
+                {isAuthenticated && (
+                  <div style={{
+                    marginTop: '1.5rem',
+                    padding: '1rem',
+                    background: '#fef3c7',
+                    borderRadius: '0.5rem',
+                    border: '2px solid var(--orange)'
+                  }}>
+                    <h4 style={{ 
+                      fontSize: '1rem', 
+                      fontWeight: '600',
+                      marginBottom: '1rem',
+                      color: 'var(--dark-blue)'
+                    }}>
+                      💬 Kommentare
+                    </h4>
+
+                    {/* Bestehende Kommentare */}
+                    {prompt.kommentare && prompt.kommentare.length > 0 && (
+                      <div style={{ marginBottom: '1rem' }}>
+                        {prompt.kommentare.map((kommentar) => (
+                          <div 
+                            key={kommentar.id}
+                            style={{
+                              background: 'white',
+                              padding: '0.75rem',
+                              borderRadius: '0.5rem',
+                              marginBottom: '0.5rem',
+                              border: '1px solid var(--gray-light)'
+                            }}
+                          >
+                            <div style={{ 
+                              fontSize: '0.85rem',
+                              fontWeight: '600',
+                              color: 'var(--primary-blue)',
+                              marginBottom: '0.25rem'
+                            }}>
+                              {kommentar.userName}
+                            </div>
+                            <div style={{ 
+                              fontSize: '0.9rem',
+                              color: 'var(--gray-dark)',
+                              marginBottom: '0.25rem',
+                              whiteSpace: 'pre-wrap'
+                            }}>
+                              {kommentar.text}
+                            </div>
+                            <div style={{ 
+                              fontSize: '0.75rem',
+                              color: 'var(--gray-medium)'
+                            }}>
+                              {kommentar.timestamp && new Date(kommentar.timestamp.seconds * 1000).toLocaleDateString('de-DE')}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+
+                    {/* Neuen Kommentar schreiben */}
+                    <div>
+                      <textarea
+                        id={`kommentar-${prompt.id}`}
+                        placeholder="Schreibe einen Kommentar..."
+                        rows={3}
+                        style={{
+                          width: '100%',
+                          padding: '0.75rem',
+                          border: '2px solid var(--gray-light)',
+                          borderRadius: '0.5rem',
+                          fontSize: '0.95rem',
+                          resize: 'vertical',
+                          marginBottom: '0.5rem'
+                        }}
+                      />
+                      <button
+                        onClick={() => {
+                          const textarea = document.getElementById(`kommentar-${prompt.id}`) as HTMLTextAreaElement;
+                          if (textarea && textarea.value.trim()) {
+                            handleKommentarHinzufuegen(prompt.id, textarea.value);
+                            textarea.value = '';
+                          }
+                        }}
+                        style={{
+                          padding: '0.5rem 1rem',
+                          background: 'var(--orange)',
+                          color: 'white',
+                          border: 'none',
+                          borderRadius: '0.5rem',
+                          fontSize: '0.95rem',
+                          fontWeight: '600',
+                          cursor: 'pointer'
+                        }}
+                      >
+                        📝 Kommentar hinzufügen
+                      </button>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           ))}

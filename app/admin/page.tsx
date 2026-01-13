@@ -63,6 +63,9 @@ const ALLE_ANWENDUNGSFAELLE = [
   // Grafik und Infografik/Diagramme
   'HTML-Grafik',
   'Bild-Grafik',
+  // Design
+  'Internetseite',
+  'Objekte',
   // Social Media Inhalte
   'Reel',
   'Gif',
