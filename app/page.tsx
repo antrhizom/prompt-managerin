@@ -3185,107 +3185,125 @@ export default function Home() {
                   </button>
                 </div>
 
-                {/* Kommentare (nur für eingeloggte User) */}
-                {isAuthenticated && (
-                  <div style={{
-                    marginTop: '1.5rem',
-                    padding: '1rem',
-                    background: '#fef3c7',
-                    borderRadius: '0.5rem',
-                    border: '2px solid var(--orange)'
+                {/* Kommentare (für alle sichtbar, Login zum Schreiben) */}
+                <div style={{
+                  marginTop: '1.5rem',
+                  padding: '1rem',
+                  background: '#fef3c7',
+                  borderRadius: '0.5rem',
+                  border: '2px solid var(--orange)'
+                }}>
+                  <h4 style={{ 
+                    fontSize: '1rem', 
+                    fontWeight: '600',
+                    marginBottom: '1rem',
+                    color: 'var(--dark-blue)'
                   }}>
-                    <h4 style={{ 
-                      fontSize: '1rem', 
-                      fontWeight: '600',
-                      marginBottom: '1rem',
-                      color: 'var(--dark-blue)'
-                    }}>
-                      💬 Kommentare
-                    </h4>
+                    💬 Kommentare
+                  </h4>
 
-                    {/* Bestehende Kommentare */}
-                    {prompt.kommentare && prompt.kommentare.length > 0 && (
-                      <div style={{ marginBottom: '1rem' }}>
-                        {prompt.kommentare.map((kommentar) => (
-                          <div 
-                            key={kommentar.id}
-                            style={{
-                              background: 'white',
-                              padding: '0.75rem',
-                              borderRadius: '0.5rem',
-                              marginBottom: '0.5rem',
-                              border: '1px solid var(--gray-light)'
-                            }}
-                          >
-                            <div style={{ 
-                              fontSize: '0.85rem',
-                              fontWeight: '600',
-                              color: 'var(--primary-blue)',
-                              marginBottom: '0.25rem'
-                            }}>
-                              {kommentar.userName}
-                            </div>
-                            <div style={{ 
-                              fontSize: '0.9rem',
-                              color: 'var(--gray-dark)',
-                              marginBottom: '0.25rem',
-                              whiteSpace: 'pre-wrap'
-                            }}>
-                              {kommentar.text}
-                            </div>
-                            <div style={{ 
-                              fontSize: '0.75rem',
-                              color: 'var(--gray-medium)'
-                            }}>
-                              {kommentar.timestamp && kommentar.timestamp.seconds 
-                                ? new Date(kommentar.timestamp.seconds * 1000).toLocaleDateString('de-DE')
-                                : ''}
-                            </div>
+                  {/* Bestehende Kommentare */}
+                  {prompt.kommentare && prompt.kommentare.length > 0 ? (
+                    <div style={{ marginBottom: '1rem' }}>
+                      {prompt.kommentare.map((kommentar) => (
+                        <div 
+                          key={kommentar.id}
+                          style={{
+                            background: 'white',
+                            padding: '0.75rem',
+                            borderRadius: '0.5rem',
+                            marginBottom: '0.5rem',
+                            border: '1px solid var(--gray-light)'
+                          }}
+                        >
+                          <div style={{ 
+                            fontSize: '0.85rem',
+                            fontWeight: '600',
+                            color: 'var(--primary-blue)',
+                            marginBottom: '0.25rem'
+                          }}>
+                            {kommentar.userName}
                           </div>
-                        ))}
-                      </div>
-                    )}
-
-                    {/* Neuen Kommentar schreiben */}
-                    <div>
-                      <textarea
-                        id={`kommentar-${prompt.id}`}
-                        placeholder="Schreibe einen Kommentar..."
-                        rows={3}
-                        style={{
-                          width: '100%',
-                          padding: '0.75rem',
-                          border: '2px solid var(--gray-light)',
-                          borderRadius: '0.5rem',
-                          fontSize: '0.95rem',
-                          resize: 'vertical',
-                          marginBottom: '0.5rem'
-                        }}
-                      />
-                      <button
-                        onClick={() => {
-                          const textarea = document.getElementById(`kommentar-${prompt.id}`) as HTMLTextAreaElement;
-                          if (textarea && textarea.value.trim()) {
-                            handleKommentarHinzufuegen(prompt.id, textarea.value);
-                            textarea.value = '';
-                          }
-                        }}
-                        style={{
-                          padding: '0.5rem 1rem',
-                          background: 'var(--orange)',
-                          color: 'white',
-                          border: 'none',
-                          borderRadius: '0.5rem',
-                          fontSize: '0.95rem',
-                          fontWeight: '600',
-                          cursor: 'pointer'
-                        }}
-                      >
-                        📝 Kommentar hinzufügen
-                      </button>
+                          <div style={{ 
+                            fontSize: '0.9rem',
+                            color: 'var(--gray-dark)',
+                            marginBottom: '0.25rem',
+                            whiteSpace: 'pre-wrap'
+                          }}>
+                            {kommentar.text}
+                          </div>
+                          <div style={{ 
+                            fontSize: '0.75rem',
+                            color: 'var(--gray-medium)'
+                          }}>
+                            {kommentar.timestamp && kommentar.timestamp.seconds 
+                              ? new Date(kommentar.timestamp.seconds * 1000).toLocaleDateString('de-DE')
+                              : ''}
+                          </div>
+                        </div>
+                      ))}
                     </div>
+                  ) : (
+                    <div style={{
+                      padding: '1rem',
+                      textAlign: 'center',
+                      color: 'var(--gray-medium)',
+                      fontSize: '0.9rem',
+                      fontStyle: 'italic',
+                      marginBottom: '1rem'
+                    }}>
+                      Noch keine Kommentare vorhanden. Sei der Erste und schreibe einen Kommentar!
+                    </div>
+                  )}
+
+                  {/* Neuen Kommentar schreiben */}
+                  <div>
+                    <textarea
+                      id={`kommentar-${prompt.id}`}
+                      placeholder={isAuthenticated 
+                        ? "Schreibe einen Kommentar..." 
+                        : "Melde dich an, um einen Kommentar zu schreiben..."}
+                      rows={3}
+                      disabled={!isAuthenticated}
+                      style={{
+                        width: '100%',
+                        padding: '0.75rem',
+                        border: '2px solid var(--gray-light)',
+                        borderRadius: '0.5rem',
+                        fontSize: '0.95rem',
+                        resize: 'vertical',
+                        marginBottom: '0.5rem',
+                        opacity: isAuthenticated ? 1 : 0.6,
+                        cursor: isAuthenticated ? 'text' : 'not-allowed'
+                      }}
+                    />
+                    <button
+                      onClick={() => {
+                        if (!isAuthenticated) {
+                          setShowLoginModal(true);
+                          return;
+                        }
+                        const textarea = document.getElementById(`kommentar-${prompt.id}`) as HTMLTextAreaElement;
+                        if (textarea && textarea.value.trim()) {
+                          handleKommentarHinzufuegen(prompt.id, textarea.value);
+                          textarea.value = '';
+                        }
+                      }}
+                      style={{
+                        padding: '0.5rem 1rem',
+                        background: isAuthenticated ? 'var(--orange)' : 'var(--primary-blue)',
+                        color: 'white',
+                        border: 'none',
+                        borderRadius: '0.5rem',
+                        fontSize: '0.95rem',
+                        fontWeight: '600',
+                        cursor: 'pointer'
+                      }}
+                    >
+                      {isAuthenticated ? '📝 Kommentar hinzufügen' : '🔑 Anmelden zum Kommentieren'}
+                    </button>
                   </div>
-                )}
+                </div>
               </div>
             </div>
           ))}
