@@ -8,11 +8,24 @@ import { db } from '@/lib/firebase';
 // Konstanten für ALLE Kategorien (auch wenn 0 Prompts)
 const ALLE_ROLLEN = [
   '👨‍🏫 Lehrperson',
-  '🎓 Lernende Berufsschule',
-  '📚 Lernende Allgemein',
-  '🏛️ Lernende Gymnasium',
-  '🏢 Verwaltung',
+  '🎓 Lernende',
+  '👨‍🎓 Schüler*in',
+  '📚 Student*in',
+  '🏭 Berufsbildner*in',
+  '🏢 Schulverwaltung',
+  '📖 Angestellte Mediothek',
   '🔧 Sonstige'
+];
+
+const ALLE_BILDUNGSSTUFEN = [
+  '🎨 Primar',
+  '📐 Sekundar I',
+  '🏭 Berufsfachschule',
+  '🏛️ Gymnasium',
+  '🎓 Fachhochschule',
+  '📚 Höhere Fachschule',
+  '🏫 Universität',
+  '⚙️ ETH'
 ];
 
 const ALLE_ANWENDUNGSFAELLE = [
@@ -179,6 +192,24 @@ export default function AdminDashboard() {
     } else {
       // Falls eine Rolle in Daten existiert die nicht in ALLE_ROLLEN ist
       promptsProRolle[rolle] = 1;
+    }
+  });
+
+  // Prompts pro Bildungsstufe (NEU)
+  const promptsProBildungsstufe: { [key: string]: number } = {};
+  // Initialisiere alle Bildungsstufen mit 0
+  ALLE_BILDUNGSSTUFEN.forEach(stufe => {
+    promptsProBildungsstufe[stufe] = 0;
+  });
+  // Zähle tatsächliche Prompts
+  prompts.forEach(p => {
+    if (p.bildungsstufe) {
+      if (promptsProBildungsstufe[p.bildungsstufe] !== undefined) {
+        promptsProBildungsstufe[p.bildungsstufe]++;
+      } else {
+        // Falls eine Stufe in Daten existiert die nicht in ALLE_BILDUNGSSTUFEN ist
+        promptsProBildungsstufe[p.bildungsstufe] = 1;
+      }
     }
   });
 
@@ -754,6 +785,44 @@ export default function AdminDashboard() {
                       → Klicken zum Filtern
                     </div>
                   </Link>
+                ))}
+            </div>
+          </div>
+
+          {/* Prompts pro Bildungsstufe */}
+          <div style={{
+            background: 'white',
+            padding: '2rem',
+            borderRadius: '1rem',
+            boxShadow: '0 4px 6px rgba(0,0,0,0.1)'
+          }}>
+            <h2 style={{ fontSize: '1.5rem', marginBottom: '1.5rem', color: 'var(--dark-blue)' }}>
+              🎓 Prompts pro Bildungsstufe
+            </h2>
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))',
+              gap: '1rem'
+            }}>
+              {Object.entries(promptsProBildungsstufe)
+                .sort((a, b) => b[1] - a[1])
+                .map(([stufe, anzahl]) => (
+                  <div 
+                    key={stufe}
+                    style={{
+                      padding: '1rem',
+                      background: '#dbeafe',
+                      borderRadius: '0.5rem',
+                      borderLeft: '4px solid #3b82f6'
+                    }}
+                  >
+                    <div style={{ fontSize: '1.5rem', fontWeight: '700', color: '#1d4ed8' }}>
+                      {anzahl}
+                    </div>
+                    <div style={{ fontSize: '0.95rem', color: 'var(--gray-dark)' }}>
+                      {stufe}
+                    </div>
+                  </div>
                 ))}
             </div>
           </div>

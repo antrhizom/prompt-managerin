@@ -48,6 +48,7 @@ interface Prompt {
   nutzungsanzahl: number;
   erstelltVon: string;
   erstelltVonRolle?: string;
+  bildungsstufe?: string;
   erstelltAm: Timestamp;
   deleted?: boolean;
   deletedAt?: Timestamp;
@@ -66,17 +67,31 @@ interface Prompt {
 }
 
 // ============================================
-// KONSTANTEN - Rollen
+// KONSTANTEN - Rollen und Bildungsstufen
 // ============================================
 
 const ROLLEN = [
   '👨‍🏫 Lehrperson',
-  '🎓 Lernende Berufsschule',
-  '📚 Lernende Allgemein',
-  '🏛️ Lernende Gymnasium',
-  '🏢 Verwaltung',
+  '🎓 Lernende',
+  '👨‍🎓 Schüler*in',
+  '📚 Student*in',
+  '🏭 Berufsbildner*in',
+  '🏢 Schulverwaltung',
+  '📖 Angestellte Mediothek',
   '🔧 Sonstige'
 ];
+
+const BILDUNGSSTUFEN = [
+  '🎨 Primar',
+  '📐 Sekundar I',
+  '🏭 Berufsfachschule',
+  '🏛️ Gymnasium',
+  '🎓 Fachhochschule',
+  '📚 Höhere Fachschule',
+  '🏫 Universität',
+  '⚙️ ETH'
+];
+
 
 // ============================================
 // KONSTANTEN - Plattformen mit Modellen
@@ -269,6 +284,7 @@ export default function Home() {
   const [neuerLink1, setNeuerLink1] = useState('');
   const [neuerLink2, setNeuerLink2] = useState('');
   const [neueRolle, setNeueRolle] = useState('');
+  const [neueBildungsstufe, setNeueBildungsstufe] = useState('');
   
   // Prozessbeschreibung State (NEU)
   const [neueProblemausgangslage, setNeueProblemausgangslage] = useState('');
@@ -524,6 +540,7 @@ export default function Home() {
     setNeuerLink1(prompt.link1 || '');
     setNeuerLink2(prompt.link2 || '');
     setNeueRolle(prompt.erstelltVonRolle || '');
+    setNeueBildungsstufe(prompt.bildungsstufe || '');
     // Prozessbeschreibung laden (NEU)
     setNeueProblemausgangslage(prompt.problemausgangslage || '');
     setNeueLoesungsbeschreibung(prompt.loesungsbeschreibung || '');
@@ -547,6 +564,7 @@ export default function Home() {
     setNeuerLink1('');
     setNeuerLink2('');
     setNeueRolle('');
+    setNeueBildungsstufe('');
     // Prozessbeschreibung zurücksetzen
     setNeueProblemausgangslage('');
     setNeueLoesungsbeschreibung('');
@@ -588,6 +606,8 @@ export default function Home() {
         tags: neueTags.split(',').map(t => t.trim()).filter(t => t),
         link1: neuerLink1.trim(),
         link2: neuerLink2.trim(),
+        erstelltVonRolle: neueRolle,
+        bildungsstufe: neueBildungsstufe,
         // Prozessbeschreibung (NEU)
         problemausgangslage: neueProblemausgangslage.trim(),
         loesungsbeschreibung: neueLoesungsbeschreibung.trim(),
@@ -616,6 +636,11 @@ export default function Home() {
 
     if (!neueRolle) {
       alert('Bitte wähle deine Rolle aus!');
+      return;
+    }
+
+    if (!neueBildungsstufe) {
+      alert('Bitte wähle deine Bildungsstufe aus!');
       return;
     }
 
@@ -649,6 +674,7 @@ export default function Home() {
         nutzungsanzahl: 0,
         erstelltVon: userCode,
         erstelltVonRolle: neueRolle,
+        bildungsstufe: neueBildungsstufe,
         erstelltAm: serverTimestamp(),
         // Prozessbeschreibung (NEU)
         ...(neueProblemausgangslage.trim() && { problemausgangslage: neueProblemausgangslage.trim() }),
@@ -1481,29 +1507,58 @@ export default function Home() {
             borderRadius: '0.75rem',
             border: '2px solid var(--orange)'
           }}>
-            <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '600', color: 'var(--dark-blue)' }}>
-              👤 Deine Rolle * <span style={{ fontSize: '0.85rem', color: '#ef4444' }}>(Pflichtfeld)</span>
-            </label>
-            <select
-              value={neueRolle}
-              onChange={(e) => setNeueRolle(e.target.value)}
-              style={{
-                width: '100%',
-                padding: '0.75rem',
-                border: neueRolle ? '2px solid var(--green)' : '2px solid #ef4444',
-                borderRadius: '0.5rem',
-                fontSize: '1rem',
-                cursor: 'pointer',
-                background: 'white'
-              }}
-            >
-              <option value="">-- Bitte wähle deine Rolle --</option>
-              {ROLLEN.map(rolle => (
-                <option key={rolle} value={rolle}>{rolle}</option>
-              ))}
-            </select>
+            {/* Rolle auswählen */}
+            <div style={{ marginBottom: '1rem' }}>
+              <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '600', color: 'var(--dark-blue)' }}>
+                👤 Deine Rolle * <span style={{ fontSize: '0.85rem', color: '#ef4444' }}>(Pflichtfeld)</span>
+              </label>
+              <select
+                value={neueRolle}
+                onChange={(e) => setNeueRolle(e.target.value)}
+                style={{
+                  width: '100%',
+                  padding: '0.75rem',
+                  border: neueRolle ? '2px solid var(--green)' : '2px solid #ef4444',
+                  borderRadius: '0.5rem',
+                  fontSize: '1rem',
+                  cursor: 'pointer',
+                  background: 'white'
+                }}
+              >
+                <option value="">-- Bitte wähle deine Rolle --</option>
+                {ROLLEN.map(rolle => (
+                  <option key={rolle} value={rolle}>{rolle}</option>
+                ))}
+              </select>
+            </div>
+
+            {/* Bildungsstufe auswählen */}
+            <div>
+              <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '600', color: 'var(--dark-blue)' }}>
+                🎓 Deine Bildungsstufe * <span style={{ fontSize: '0.85rem', color: '#ef4444' }}>(Pflichtfeld)</span>
+              </label>
+              <select
+                value={neueBildungsstufe}
+                onChange={(e) => setNeueBildungsstufe(e.target.value)}
+                style={{
+                  width: '100%',
+                  padding: '0.75rem',
+                  border: neueBildungsstufe ? '2px solid var(--green)' : '2px solid #ef4444',
+                  borderRadius: '0.5rem',
+                  fontSize: '1rem',
+                  cursor: 'pointer',
+                  background: 'white'
+                }}
+              >
+                <option value="">-- Bitte wähle deine Bildungsstufe --</option>
+                {BILDUNGSSTUFEN.map(stufe => (
+                  <option key={stufe} value={stufe}>{stufe}</option>
+                ))}
+              </select>
+            </div>
+
             <div style={{ fontSize: '0.75rem', color: 'var(--gray-medium)', marginTop: '0.5rem' }}>
-              💡 Hilft uns zu verstehen, wer welche Prompts erstellt (für Statistiken)
+              💡 Hilft uns zu verstehen, für welche Stufe die Prompts gedacht sind
             </div>
           </div>
 
@@ -1569,69 +1624,17 @@ export default function Home() {
               }}
             />
             
-            {/* File-Upload für .md und .txt */}
+            {/* Hinweis für Copy-Paste */}
             <div style={{ 
-              marginTop: '1rem',
-              padding: '1rem',
-              background: 'var(--gray-light)',
+              marginTop: '0.75rem',
+              padding: '0.75rem',
+              background: '#e0f2fe',
               borderRadius: '0.5rem',
-              border: '2px dashed var(--gray-medium)'
+              fontSize: '0.85rem',
+              color: '#0c4a6e',
+              lineHeight: '1.5'
             }}>
-              <label style={{ 
-                display: 'block', 
-                marginBottom: '0.5rem', 
-                fontWeight: '500',
-                color: 'var(--dark-blue)'
-              }}>
-                📄 Zusätzliche prompt-Dokumente
-              </label>
-              <div style={{ 
-                fontSize: '0.85rem', 
-                color: 'var(--gray-dark)', 
-                marginBottom: '0.75rem',
-                lineHeight: '1.5'
-              }}>
-                Lade eine <strong>.md</strong> (Markdown) oder <strong>.txt</strong> Datei hoch. 
-                Der Inhalt wird automatisch in das Textfeld oben eingefügt.
-              </div>
-              <input
-                type="file"
-                accept=".md,.txt"
-                onChange={(e) => {
-                  const file = e.target.files?.[0];
-                  if (file) {
-                    // Prüfe Dateityp
-                    const fileExtension = file.name.split('.').pop()?.toLowerCase();
-                    if (fileExtension !== 'md' && fileExtension !== 'txt') {
-                      alert('Nur .md und .txt Dateien sind erlaubt!');
-                      e.target.value = '';
-                      return;
-                    }
-                    
-                    // Lese Datei-Inhalt
-                    const reader = new FileReader();
-                    reader.onload = (event) => {
-                      const content = event.target?.result as string;
-                      setNeuerPromptText(content);
-                    };
-                    reader.onerror = () => {
-                      alert('Fehler beim Lesen der Datei.');
-                    };
-                    reader.readAsText(file);
-                    
-                    // Reset file input nach Upload
-                    e.target.value = '';
-                  }
-                }}
-                style={{
-                  width: '100%',
-                  padding: '0.5rem',
-                  border: '1px solid var(--gray-medium)',
-                  borderRadius: '0.25rem',
-                  background: 'white',
-                  cursor: 'pointer'
-                }}
-              />
+              💡 <strong>Tipp:</strong> Du kannst deinen Prompt auch in einem Text-Editor (z.B. Notepad, VS Code) vorbereiten und hier einfügen (Ctrl+V).
             </div>
           </div>
 
