@@ -73,6 +73,7 @@ interface Prompt {
   id: string;
   titel: string;
   plattformenUndModelle: { [plattform: string]: string[] };
+  plattformFunktionen?: { [plattform: string]: string[] };
   outputFormate: string[];
   anwendungsfaelle: string[];
   tags?: string[];

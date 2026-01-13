@@ -40,6 +40,7 @@ interface Prompt {
   promptText: string;
   zusatzinstruktionen?: string;
   plattformenUndModelle: { [plattform: string]: string[] };
+  plattformFunktionen?: { [plattform: string]: string[] };
   outputFormate: string[];
   anwendungsfaelle: string[];
   tags: string[];
@@ -95,106 +96,235 @@ const BILDUNGSSTUFEN = [
 
 
 // ============================================
-// KONSTANTEN - Plattformen mit Modellen
+// KONSTANTEN - Plattformen mit Modellen & Funktionen
 // ============================================
 
-const PLATTFORMEN_MIT_MODELLEN: { [key: string]: string[] } = {
-  'ChatGPT / OpenAI': [
-    'GPT-5.2',
-    'GPT-5.1',
-    'GPT-4.1',
-    'GPT-4o',
-    'GPT-4o mini',
-    'o3',
-    'o3-mini',
-    'o3-pro'
-  ],
-  'Claude / Anthropic': [
-    'Claude Opus 4.5',
-    'Claude Sonnet 4.5',
-    'Claude Opus 4',
-    'Claude Sonnet 4',
-    'Claude Haiku 4.5',
-    'Claude 4',
-    'Claude 4.5'
-  ],
-  'Gemini / Google': [
-    'Gemini 3 Pro',
-    'Gemini 3 Flash',
-    'Gemini 2.5 Pro',
-    'Gemini 2.5 Flash'
-  ],
-  'fobizz': [
-    'Mistral mini',
-    'Llama 3',
-    'Llama 3 mini',
-    'GPT-OSS',
-    'GPT-OSS small',
-    'DeepSeek R1',
-    'Qwen 3',
-    'GPT-5',
-    'GPT-5 mini',
-    'GPT-4o',
-    'GPT-4o mini',
-    'GPT o3-mini',
-    'Claude 4',
-    'Claude 4.5',
-    'Mistral'
-  ],
-  'Copilot / Microsoft': [
-    'GPT-5',
-    'GPT-4.1',
-    'Claude Sonnet 4',
-    'Phi-4'
-  ],
-  'Perplexity': [
-    'Sonar',
-    'Sonar-Pro',
-    'Sonar-Reasoning'
-  ],
-  'DeepL Write': [
-    'DeepL Write'
-  ],
-  'Meta Llama': [
-    'Llama 4 Scout',
-    'Llama 4 Maverick',
-    'Llama 3.3 70B',
-    'Llama 3.2 Vision',
-    'Llama 3.1 405B'
-  ],
-  'Mistral AI': [
-    'Mistral Large 3',
-    'Mistral Small 3.2',
-    'Ministral 3'
-  ],
-  'Qwen / Alibaba': [
-    'Qwen3-235B',
-    'Qwen3-Max',
-    'QwQ-32B',
-    'Qwen3-VL'
-  ],
-  'DeepSeek': [
-    'DeepSeek-V3.2',
-    'DeepSeek-R1'
-  ],
-  'Manus': [
-    'Manus AI'
-  ],
-  'Kimi': [
-    'Kimi AI'
-  ],
-  '🎥 Video-Plattformen': [
-    'Synthesia.io',
-    'HeyGen',
-    'Krea',
-    'NotebookLM',
-    'Sonstige'
-  ],
-  '🎵 Audio-Plattformen': [
-    'ElevenLabs.io',
-    'Sonstige'
-  ]
+const PLATTFORMEN_MIT_MODELLEN_UND_FUNKTIONEN: { 
+  [key: string]: { 
+    modelle: string[], 
+    funktionen: string[] 
+  } 
+} = {
+  'ChatGPT / OpenAI': {
+    modelle: [
+      'GPT-5.2',
+      'GPT-5.1',
+      'GPT-4.1',
+      'GPT-4o',
+      'GPT-4o mini',
+      'o3',
+      'o3-mini',
+      'o3-pro'
+    ],
+    funktionen: [
+      'Chat',
+      'Canvas',
+      'Custom GPTs',
+      'Web-Browsing',
+      'DALL-E Bildgenerierung',
+      'Code Interpreter',
+      'Dateianalyse'
+    ]
+  },
+  'Claude / Anthropic': {
+    modelle: [
+      'Claude Opus 4.5',
+      'Claude Sonnet 4.5',
+      'Claude Opus 4',
+      'Claude Sonnet 4',
+      'Claude Haiku 4.5',
+      'Claude 4',
+      'Claude 4.5'
+    ],
+    funktionen: [
+      'Chat',
+      'Artifacts',
+      'Projects',
+      'Recherche',
+      'Code-Ausführung',
+      'Dateianalyse'
+    ]
+  },
+  'Gemini / Google': {
+    modelle: [
+      'Gemini 3 Pro',
+      'Gemini 3 Flash',
+      'Gemini 2.5 Pro',
+      'Gemini 2.5 Flash'
+    ],
+    funktionen: [
+      'Chat',
+      'Deep Research',
+      'Canvas',
+      'Bilder erstellen',
+      'Lernhilfe',
+      'Visuelles Layout',
+      'Websuche',
+      'Google Drive Integration',
+      'GitHub Integration',
+      'Vercel Integration',
+      'Screenshot-Upload'
+    ]
+  },
+  'fobizz': {
+    modelle: [
+      'Mistral mini',
+      'Llama 3',
+      'Llama 3 mini',
+      'GPT-OSS',
+      'GPT-OSS small',
+      'DeepSeek R1',
+      'Qwen 3',
+      'GPT-5',
+      'GPT-5 mini',
+      'GPT-4o',
+      'GPT-4o mini',
+      'GPT o3-mini',
+      'Claude 4',
+      'Claude 4.5',
+      'Mistral'
+    ],
+    funktionen: [
+      'Chat',
+      'Bildgenerierung',
+      'Textanalyse'
+    ]
+  },
+  'Copilot / Microsoft': {
+    modelle: [
+      'GPT-5',
+      'GPT-4.1',
+      'Claude Sonnet 4',
+      'Phi-4'
+    ],
+    funktionen: [
+      'Chat',
+      'Web-Browsing',
+      'Bildgenerierung',
+      'Code-Assistance'
+    ]
+  },
+  'Perplexity': {
+    modelle: [
+      'Sonar',
+      'Sonar-Pro',
+      'Sonar-Reasoning'
+    ],
+    funktionen: [
+      'Recherche',
+      'Web-Browsing',
+      'Quellenangaben'
+    ]
+  },
+  'DeepL Write': {
+    modelle: [
+      'DeepL Write'
+    ],
+    funktionen: [
+      'Textkorrektur',
+      'Übersetzung',
+      'Stilverbesserung'
+    ]
+  },
+  'Meta Llama': {
+    modelle: [
+      'Llama 4 Scout',
+      'Llama 4 Maverick',
+      'Llama 3.3 70B',
+      'Llama 3.2 Vision',
+      'Llama 3.1 405B'
+    ],
+    funktionen: [
+      'Chat',
+      'Code-Generierung',
+      'Bildanalyse (Vision)'
+    ]
+  },
+  'Mistral AI': {
+    modelle: [
+      'Mistral Large 3',
+      'Mistral Small 3.2',
+      'Ministral 3'
+    ],
+    funktionen: [
+      'Chat',
+      'Code-Generierung'
+    ]
+  },
+  'Qwen / Alibaba': {
+    modelle: [
+      'Qwen3-235B',
+      'Qwen3-Max',
+      'QwQ-32B',
+      'Qwen3-VL'
+    ],
+    funktionen: [
+      'Chat',
+      'Bildanalyse (VL)'
+    ]
+  },
+  'DeepSeek': {
+    modelle: [
+      'DeepSeek-V3.2',
+      'DeepSeek-R1'
+    ],
+    funktionen: [
+      'Chat',
+      'Reasoning',
+      'Code-Generierung'
+    ]
+  },
+  'Manus': {
+    modelle: [
+      'Manus AI'
+    ],
+    funktionen: [
+      'Chat'
+    ]
+  },
+  'Kimi': {
+    modelle: [
+      'Kimi AI'
+    ],
+    funktionen: [
+      'Chat',
+      'Lange Kontexte'
+    ]
+  },
+  '🎥 Video-Plattformen': {
+    modelle: [
+      'Synthesia.io',
+      'HeyGen',
+      'Krea',
+      'NotebookLM',
+      'Sonstige'
+    ],
+    funktionen: [
+      'Video-Generierung',
+      'Avatar-Erstellung',
+      'Text-zu-Video'
+    ]
+  },
+  '🎵 Audio-Plattformen': {
+    modelle: [
+      'ElevenLabs.io',
+      'Sonstige'
+    ],
+    funktionen: [
+      'Text-zu-Sprache',
+      'Voice Cloning',
+      'Audio-Generierung'
+    ]
+  }
 };
+
+// Backward compatibility: Export modelle-only version
+const PLATTFORMEN_MIT_MODELLEN: { [key: string]: string[] } = Object.entries(
+  PLATTFORMEN_MIT_MODELLEN_UND_FUNKTIONEN
+).reduce((acc, [plattform, data]) => {
+  acc[plattform] = data.modelle;
+  return acc;
+}, {} as { [key: string]: string[] });
 
 const EMOJIS = ['👍', '❤️', '🔥', '⭐', '💡'];
 
@@ -280,6 +410,7 @@ export default function Home() {
   const [neuerPromptText, setNeuerPromptText] = useState('');
   const [neueZusatzinstruktionen, setNeueZusatzinstruktionen] = useState('');
   const [neuePlattformenUndModelle, setNeuePlattformenUndModelle] = useState<{ [key: string]: string[] }>({});
+  const [neuePlattformFunktionen, setNeuePlattformFunktionen] = useState<{ [key: string]: string[] }>({});
   const [neueOutputFormate, setNeueOutputFormate] = useState<string[]>([]);
   const [neueAnwendungsfaelle, setNeueAnwendungsfaelle] = useState<string[]>([]);
   const [neueTags, setNeueTags] = useState('');
@@ -510,6 +641,22 @@ export default function Home() {
     });
   };
 
+  const toggleFunktion = (plattform: string, funktion: string) => {
+    setNeuePlattformFunktionen(prev => {
+      const aktuelleFunktionen = prev[plattform] || [];
+      const neueFunktionen = aktuelleFunktionen.includes(funktion)
+        ? aktuelleFunktionen.filter(f => f !== funktion)
+        : [...aktuelleFunktionen, funktion];
+      
+      if (neueFunktionen.length === 0) {
+        const { [plattform]: _, ...rest } = prev;
+        return rest;
+      }
+      
+      return { ...prev, [plattform]: neueFunktionen };
+    });
+  };
+
   const toggleOutputFormat = (format: string) => {
     setNeueOutputFormate(prev => 
       prev.includes(format) ? prev.filter(f => f !== format) : [...prev, format]
@@ -537,6 +684,7 @@ export default function Home() {
     setNeuerPromptText(prompt.promptText);
     setNeueZusatzinstruktionen(prompt.zusatzinstruktionen || '');
     setNeuePlattformenUndModelle(prompt.plattformenUndModelle || {});
+    setNeuePlattformFunktionen(prompt.plattformFunktionen || {});
     setNeueOutputFormate(prompt.outputFormate || []);
     setNeueAnwendungsfaelle(prompt.anwendungsfaelle || []);
     setNeueTags(prompt.tags?.join(', ') || '');
@@ -562,6 +710,7 @@ export default function Home() {
     setNeuerPromptText('');
     setNeueZusatzinstruktionen('');
     setNeuePlattformenUndModelle({});
+    setNeuePlattformFunktionen({});
     setNeueOutputFormate([]);
     setNeueAnwendungsfaelle([]);
     setNeueTags('');
@@ -616,6 +765,7 @@ export default function Home() {
         promptText: neuerPromptText.trim(),
         ...(neueZusatzinstruktionen.trim() && { zusatzinstruktionen: neueZusatzinstruktionen.trim() }),
         plattformenUndModelle: neuePlattformenUndModelle,
+        ...(Object.keys(neuePlattformFunktionen).length > 0 && { plattformFunktionen: neuePlattformFunktionen }),
         outputFormate: neueOutputFormate,
         anwendungsfaelle: neueAnwendungsfaelle,
         tags: neueTags.split(',').map(t => t.trim()).filter(t => t),
@@ -681,6 +831,7 @@ export default function Home() {
         promptText: neuerPromptText.trim(),
         ...(neueZusatzinstruktionen.trim() && { zusatzinstruktionen: neueZusatzinstruktionen.trim() }),
         plattformenUndModelle: neuePlattformenUndModelle,
+        ...(Object.keys(neuePlattformFunktionen).length > 0 && { plattformFunktionen: neuePlattformFunktionen }),
         outputFormate: neueOutputFormate,
         anwendungsfaelle: neueAnwendungsfaelle,
         tags: neueTags.split(',').map(t => t.trim()).filter(t => t),
@@ -1733,12 +1884,12 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Plattformen & Modelle ACCORDION */}
+          {/* Plattformen & Modelle & Funktionen ACCORDION */}
           <div style={{ marginBottom: '1rem' }}>
             <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>
-              Plattformen & Modelle * 
+              Plattformen, Modelle & Funktionen * 
               <span style={{ color: 'var(--gray-medium)', fontWeight: 'normal', marginLeft: '0.5rem' }}>
-                ({Object.keys(neuePlattformenUndModelle).length} Plattformen, {Object.values(neuePlattformenUndModelle).flat().length} Modelle)
+                ({Object.keys(neuePlattformenUndModelle).length} Plattformen, {Object.values(neuePlattformenUndModelle).flat().length} Modelle, {Object.values(neuePlattformFunktionen).flat().length} Funktionen)
               </span>
             </label>
             <div style={{
@@ -1751,8 +1902,8 @@ export default function Home() {
               color: 'var(--gray-dark)',
               lineHeight: '1.5'
             }}>
-              <strong>💡 Warum ist das wichtig?</strong> Teile mit anderen, <strong>mit welchen KI-Plattformen und Modellen</strong> du diesen Prompt getestet hast. 
-              So wissen andere Nutzer:innen, welche KI sie verwenden können und welche Ergebnisse zu erwarten sind.
+              <strong>💡 Warum ist das wichtig?</strong> Teile mit anderen, <strong>mit welchen KI-Plattformen, Modellen und Funktionen</strong> du diesen Prompt getestet hast. 
+              So wissen andere Nutzer:innen, welche KI und Features sie verwenden können.
             </div>
             <div style={{
               border: '2px solid var(--gray-light)',
@@ -1760,60 +1911,126 @@ export default function Home() {
               padding: '1rem',
               background: 'var(--gray-light)'
             }}>
-              {Object.entries(PLATTFORMEN_MIT_MODELLEN).map(([plattform, modelle]) => (
-                <details key={plattform} style={{ marginBottom: '0.75rem' }}>
-                  <summary style={{
-                    padding: '0.75rem',
-                    background: 'white',
-                    borderRadius: '0.5rem',
-                    fontWeight: '600',
-                    fontSize: '0.95rem',
-                    color: neuePlattformenUndModelle[plattform]?.length > 0 ? 'var(--green)' : 'var(--gray-dark)'
-                  }}>
-                    {plattform} 
-                    {neuePlattformenUndModelle[plattform]?.length > 0 && (
-                      <span style={{ marginLeft: '0.5rem', fontSize: '0.85rem' }}>
-                        ({neuePlattformenUndModelle[plattform].length})
-                      </span>
-                    )}
-                  </summary>
-                  <div style={{
-                    padding: '1rem',
-                    background: 'white',
-                    borderRadius: '0 0 0.5rem 0.5rem',
-                    marginTop: '0.25rem'
-                  }}>
-                    <div style={{
-                      display: 'grid',
-                      gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))',
-                      gap: '0.5rem'
+              {Object.entries(PLATTFORMEN_MIT_MODELLEN_UND_FUNKTIONEN).map(([plattform, data]) => {
+                const modelleCount = neuePlattformenUndModelle[plattform]?.length || 0;
+                const funktionenCount = neuePlattformFunktionen[plattform]?.length || 0;
+                const hasSelection = modelleCount > 0 || funktionenCount > 0;
+                
+                return (
+                  <details key={plattform} style={{ marginBottom: '0.75rem' }}>
+                    <summary style={{
+                      padding: '0.75rem',
+                      background: 'white',
+                      borderRadius: '0.5rem',
+                      fontWeight: '600',
+                      fontSize: '0.95rem',
+                      color: hasSelection ? 'var(--green)' : 'var(--gray-dark)',
+                      cursor: 'pointer'
                     }}>
-                      {modelle.map(modell => (
-                        <label key={modell} style={{
+                      {plattform} 
+                      {hasSelection && (
+                        <span style={{ marginLeft: '0.5rem', fontSize: '0.85rem' }}>
+                          ({modelleCount} Modelle, {funktionenCount} Funktionen)
+                        </span>
+                      )}
+                    </summary>
+                    <div style={{
+                      padding: '1rem',
+                      background: 'white',
+                      borderRadius: '0 0 0.5rem 0.5rem',
+                      marginTop: '0.25rem'
+                    }}>
+                      {/* Modelle */}
+                      <div style={{ marginBottom: '1rem' }}>
+                        <h4 style={{ 
+                          fontSize: '0.9rem', 
+                          fontWeight: '600',
+                          marginBottom: '0.75rem',
+                          color: 'var(--purple)',
                           display: 'flex',
                           alignItems: 'center',
-                          gap: '0.5rem',
-                          cursor: 'pointer',
-                          padding: '0.5rem',
-                          background: neuePlattformenUndModelle[plattform]?.includes(modell) 
-                            ? 'var(--light-blue)' 
-                            : 'transparent',
-                          borderRadius: '0.375rem',
-                          transition: 'background 0.2s'
+                          gap: '0.5rem'
                         }}>
-                          <input
-                            type="checkbox"
-                            checked={neuePlattformenUndModelle[plattform]?.includes(modell) || false}
-                            onChange={() => toggleModell(plattform, modell)}
-                            style={{ cursor: 'pointer' }}
-                          />
-                          <span style={{ fontSize: '0.9rem' }}>{modell}</span>
-                        </label>
-                      ))}
+                          🤖 Modelle
+                        </h4>
+                        <div style={{
+                          display: 'grid',
+                          gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))',
+                          gap: '0.5rem'
+                        }}>
+                          {data.modelle.map(modell => (
+                            <label key={modell} style={{
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: '0.5rem',
+                              cursor: 'pointer',
+                              padding: '0.5rem',
+                              background: neuePlattformenUndModelle[plattform]?.includes(modell) 
+                                ? 'var(--light-blue)' 
+                                : 'transparent',
+                              borderRadius: '0.375rem',
+                              transition: 'background 0.2s'
+                            }}>
+                              <input
+                                type="checkbox"
+                                checked={neuePlattformenUndModelle[plattform]?.includes(modell) || false}
+                                onChange={() => toggleModell(plattform, modell)}
+                                style={{ cursor: 'pointer' }}
+                              />
+                              <span style={{ fontSize: '0.9rem' }}>{modell}</span>
+                            </label>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Funktionen */}
+                      {data.funktionen.length > 0 && (
+                        <div>
+                          <h4 style={{ 
+                            fontSize: '0.9rem', 
+                            fontWeight: '600',
+                            marginBottom: '0.75rem',
+                            color: 'var(--green)',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '0.5rem'
+                          }}>
+                            ⚡ Funktionen
+                          </h4>
+                          <div style={{
+                            display: 'grid',
+                            gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))',
+                            gap: '0.5rem'
+                          }}>
+                            {data.funktionen.map(funktion => (
+                              <label key={funktion} style={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '0.5rem',
+                                cursor: 'pointer',
+                                padding: '0.5rem',
+                                background: neuePlattformFunktionen[plattform]?.includes(funktion) 
+                                  ? '#d1fae5' 
+                                  : 'transparent',
+                                borderRadius: '0.375rem',
+                                transition: 'background 0.2s'
+                              }}>
+                                <input
+                                  type="checkbox"
+                                  checked={neuePlattformFunktionen[plattform]?.includes(funktion) || false}
+                                  onChange={() => toggleFunktion(plattform, funktion)}
+                                  style={{ cursor: 'pointer' }}
+                                />
+                                <span style={{ fontSize: '0.9rem' }}>{funktion}</span>
+                              </label>
+                            ))}
+                          </div>
+                        </div>
+                      )}
                     </div>
-                  </div>
-                </details>
-              ))}
+                  </details>
+                );
+              })}
             </div>
           </div>
 
@@ -2531,6 +2748,33 @@ export default function Home() {
                             marginBottom: '0.25rem'
                           }}>
                             {modell}
+                          </span>
+                        ))}
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {/* Funktionen */}
+                {prompt.plattformFunktionen && Object.keys(prompt.plattformFunktionen).length > 0 && (
+                  <div style={{ marginBottom: '0.5rem' }}>
+                    <strong style={{ fontSize: '0.9rem', marginRight: '0.5rem' }}>
+                      Funktionen:
+                    </strong>
+                    {Object.entries(prompt.plattformFunktionen).map(([plattform, funktionen]) => (
+                      <div key={plattform} style={{ marginBottom: '0.5rem' }}>
+                        {funktionen.map(funktion => (
+                          <span key={funktion} style={{
+                            display: 'inline-block',
+                            padding: '0.25rem 0.75rem',
+                            background: '#d1fae5',
+                            color: '#065f46',
+                            borderRadius: '1rem',
+                            fontSize: '0.8rem',
+                            marginRight: '0.5rem',
+                            marginBottom: '0.25rem'
+                          }}>
+                            ⚡ {funktion}
                           </span>
                         ))}
                       </div>
